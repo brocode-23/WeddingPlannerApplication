@@ -1,0 +1,232 @@
+CREATE TABLE Couples (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    WeddingDate DATETIME,
+    Budget DECIMAL(18,2),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0
+);
+
+CREATE TABLE CoupleMembers (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CoupleId UNIQUEIDENTIFIER,
+    UserId NVARCHAR(450),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id),
+    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+);
+
+CREATE TABLE Vendors (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId NVARCHAR(450),
+    Name VARCHAR(100),
+    Category VARCHAR(50),
+    Description TEXT,
+    Pricing DECIMAL(18,2),
+    Location VARCHAR(255),
+    Rating DECIMAL(3,2),
+    ProfilePicture VARCHAR(255),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+);
+
+CREATE TABLE VendorServices (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    VendorId UNIQUEIDENTIFIER,
+    ServiceName VARCHAR(100),
+    Description TEXT,
+    Price DECIMAL(18,2),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (VendorId) REFERENCES Vendors(Id)
+);
+
+CREATE TABLE VendorAvailability (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    VendorId UNIQUEIDENTIFIER,
+    AvailableDate DATE,
+    FromTime TIME,
+    ToTime TIME,
+    Status VARCHAR(20) CHECK (Status IN ('Available', 'Booked', 'Not Available')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (VendorId) REFERENCES Vendors(Id)
+);
+
+CREATE TABLE Bookings (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CoupleId UNIQUEIDENTIFIER,
+    VendorId UNIQUEIDENTIFIER,
+    ServiceId UNIQUEIDENTIFIER,
+    BookingDate DATE,
+    ServiceDetails TEXT,
+    TotalAmount DECIMAL(18,2),
+    Status VARCHAR(20) CHECK (Status IN ('Confirmed', 'Pending', 'Cancelled')),
+    PaymentStatus VARCHAR(20) CHECK (PaymentStatus IN ('Paid', 'Pending', 'Failed')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id),
+    FOREIGN KEY (VendorId) REFERENCES Vendors(Id),
+    FOREIGN KEY (ServiceId) REFERENCES VendorServices(Id)
+);
+
+CREATE TABLE Payments (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    BookingId UNIQUEIDENTIFIER,
+    PaymentAmount DECIMAL(18,2),
+    PaymentDate DATETIME,
+    PaymentMethod VARCHAR(30) CHECK (PaymentMethod IN ('Credit Card', 'PayPal', 'Bank Transfer')),
+    PaymentStatus VARCHAR(20) CHECK (PaymentStatus IN ('Paid', 'Pending', 'Failed')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (BookingId) REFERENCES Bookings(Id)
+);
+
+CREATE TABLE Reviews (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    VendorId UNIQUEIDENTIFIER,
+    UserId NVARCHAR(450),
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    Comment TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (VendorId) REFERENCES Vendors(Id),
+    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+);
+
+CREATE TABLE WeddingChecklist (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CoupleId UNIQUEIDENTIFIER,
+    TaskName VARCHAR(255),
+    TaskDescription TEXT,
+    TaskStatus VARCHAR(20) CHECK (TaskStatus IN ('Incomplete', 'In Progress', 'Completed')),
+    DueDate DATETIME,
+    AssignedTo VARCHAR(20) CHECK (AssignedTo IN ('partner1', 'partner2', 'both')),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id)
+);
+
+CREATE TABLE GuestList (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CoupleId UNIQUEIDENTIFIER,
+    FirstName VARCHAR(100),
+    LastName VARCHAR(100),
+    Email VARCHAR(255),
+    RSVPStatus VARCHAR(20) CHECK (RSVPStatus IN ('Accepted', 'Declined', 'Pending')),
+    MealPreference VARCHAR(100),
+    Allergies TEXT,
+    SeatingArrangement VARCHAR(100),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id)
+);
+
+CREATE TABLE WeddingBudget (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CoupleId UNIQUEIDENTIFIER,
+    Category VARCHAR(100),
+    AllocatedAmount DECIMAL(18,2),
+    SpentAmount DECIMAL(18,2),
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id)
+);
+
+CREATE TABLE WeddingTimeline (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    CoupleId UNIQUEIDENTIFIER,
+    EventName VARCHAR(255),
+    EventTime DATETIME,
+    EventDescription TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id)
+);
+
+CREATE TABLE Messages (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    SenderUserId NVARCHAR(450),
+    ReceiverUserId NVARCHAR(450),
+    MessageContent TEXT,
+    SentAt DATETIME,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (SenderUserId) REFERENCES AspNetUsers(Id),
+    FOREIGN KEY (ReceiverUserId) REFERENCES AspNetUsers(Id)
+);
+
+CREATE TABLE AuditLogs (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId NVARCHAR(450),
+    EntityType VARCHAR(100),
+    EntityId UNIQUEIDENTIFIER,
+    Action VARCHAR(20) CHECK (Action IN ('CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'VIEW')),
+    OldValue TEXT,
+    NewValue TEXT,
+    Description TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+);
+
+CREATE TABLE Reports (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    ReportType VARCHAR(50),
+    DateRangeStart DATETIME,
+    DateRangeEnd DATETIME,
+    ReportData TEXT,
+    GeneratedAt DATETIME,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0
+);
+
+CREATE TABLE WeddingPlanners (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    PlannerUserId NVARCHAR(450),
+    CoupleId UNIQUEIDENTIFIER,
+    AssignedDate DATETIME,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (PlannerUserId) REFERENCES AspNetUsers(Id),
+    FOREIGN KEY (CoupleId) REFERENCES Couples(Id)
+);
+
+CREATE TABLE Venues (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    VendorId UNIQUEIDENTIFIER,
+    Address VARCHAR(255),
+    Latitude DECIMAL(10, 8),
+    Longitude DECIMAL(11, 8),
+    Capacity INT,
+    IndoorOutdoor VARCHAR(20) CHECK (IndoorOutdoor IN ('Indoor', 'Outdoor', 'Both')),
+    Amenities TEXT,
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    IsDeleted BIT DEFAULT 0,
+    FOREIGN KEY (VendorId) REFERENCES Vendors(Id)
+);
+
+CREATE TABLE SystemUsageLogs (
+    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    UserId NVARCHAR(450),
+    Action VARCHAR(100),
+    Metadata TEXT,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (UserId) REFERENCES AspNetUsers(Id)
+);
