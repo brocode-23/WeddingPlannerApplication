@@ -2,7 +2,7 @@
 {
     public class Message
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string SenderUserId { get; set; }
         public string ReceiverUserId { get; set; }
         public string MessageContent { get; set; }

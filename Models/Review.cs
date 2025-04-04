@@ -2,8 +2,8 @@
 {
     public class Review
     {
-        public Guid Id { get; set; }
-        public Guid VendorId { get; set; }
+        public int Id { get; set; }
+        public int VendorId { get; set; }
         public string UserId { get; set; }
         public int Rating { get; set; }
         public string Comment { get; set; }

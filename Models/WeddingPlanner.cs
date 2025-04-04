@@ -2,9 +2,9 @@
 {
     public class WeddingPlanner
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string PlannerUserId { get; set; }
-        public Guid CoupleId { get; set; }
+        public int CoupleId { get; set; }
         public DateTime AssignedDate { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

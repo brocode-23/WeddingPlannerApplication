@@ -2,8 +2,8 @@
 {
     public class VendorAvailability
     {
-        public Guid Id { get; set; }
-        public Guid VendorId { get; set; }
+        public int Id { get; set; }
+        public int VendorId { get; set; }
         public DateTime AvailableDate { get; set; }
         public TimeSpan FromTime { get; set; }
         public TimeSpan ToTime { get; set; }

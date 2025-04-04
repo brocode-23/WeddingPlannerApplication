@@ -2,8 +2,8 @@
 {
     public class Venue
     {
-        public Guid Id { get; set; }
-        public Guid VendorId { get; set; }
+        public int Id { get; set; }
+        public int VendorId { get; set; }
         public string Address { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }

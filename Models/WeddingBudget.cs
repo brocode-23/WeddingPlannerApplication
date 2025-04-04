@@ -2,8 +2,8 @@
 {
     public class WeddingBudget
     {
-        public Guid Id { get; set; }
-        public Guid CoupleId { get; set; }
+        public int Id { get; set; }
+        public int CoupleId { get; set; }
         public string Category { get; set; }
         public decimal AllocatedAmount { get; set; }
         public decimal SpentAmount { get; set; }

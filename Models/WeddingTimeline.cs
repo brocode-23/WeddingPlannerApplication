@@ -2,8 +2,8 @@
 {
     public class WeddingTimeline
     {
-        public Guid Id { get; set; }
-        public Guid CoupleId { get; set; }
+        public int Id { get; set; }
+        public int CoupleId { get; set; }
         public string EventName { get; set; }
         public DateTime EventTime { get; set; }
         public string EventDescription { get; set; }

@@ -2,7 +2,7 @@
 {
     public class Report
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string ReportType { get; set; }
         public DateTime DateRangeStart { get; set; }
         public DateTime DateRangeEnd { get; set; }

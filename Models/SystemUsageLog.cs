@@ -2,7 +2,7 @@
 {
     public class SystemUsageLog
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string UserId { get; set; }
         public string Action { get; set; }
         public string Metadata { get; set; }

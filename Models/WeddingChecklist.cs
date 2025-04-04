@@ -2,8 +2,8 @@
 {
     public class WeddingChecklist
     {
-        public Guid Id { get; set; }
-        public Guid CoupleId { get; set; }
+        public int Id { get; set; }
+        public int CoupleId { get; set; }
         public string TaskName { get; set; }
         public string TaskDescription { get; set; }
         public string TaskStatus { get; set; }

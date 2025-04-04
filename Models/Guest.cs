@@ -2,8 +2,8 @@
 {
     public class Guest
     {
-        public Guid Id { get; set; }
-        public Guid CoupleId { get; set; }
+        public int Id { get; set; }
+        public int CoupleId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }

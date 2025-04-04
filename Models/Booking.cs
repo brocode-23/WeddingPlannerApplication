@@ -2,10 +2,10 @@
 {
     public class Booking
     {
-        public Guid Id { get; set; }
-        public Guid CoupleId { get; set; }
-        public Guid VendorId { get; set; }
-        public Guid ServiceId { get; set; }
+        public int Id { get; set; }
+        public int CoupleId { get; set; }
+        public int VendorId { get; set; }
+        public int ServiceId { get; set; }
         public DateTime BookingDate { get; set; }
         public string ServiceDetails { get; set; }
         public decimal TotalAmount { get; set; }
