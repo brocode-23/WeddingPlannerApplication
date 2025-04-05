@@ -1,0 +1,254 @@
+public class ApplicationUser : IdentityUser
+{
+    public string FirstName { get; set; } = "";
+    public string LastName { get; set; } = "";
+    public string Role { get; set; } // "Couple", "Planner", "Vendor", "Admin"
+    public string ProfilePicture { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsDeleted { get; set; } = false;
+    public ICollection<CoupleMember> CoupleMemberships { get; set; }
+    public ICollection<WeddingPlanner> PlannerAssignments { get; set; }
+    public ICollection<Vendor> VendorProfiles { get; set; }
+    public ICollection<Message> SentMessages { get; set; }
+    public ICollection<Message> ReceivedMessages { get; set; }
+    public ICollection<Review> Reviews { get; set; }
+    public ICollection<AuditLog> AuditLogs { get; set; }
+    public ICollection<SystemUsageLog> UsageLogs { get; set; }
+
+}
+public class Couple
+{
+    public Guid Id { get; set; }
+    public DateTime WeddingDate { get; set; }
+    public decimal Budget { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<CoupleMember> Members { get; set; }
+    public ICollection<WeddingChecklist> Checklists { get; set; }
+    public ICollection<Guest> Guests { get; set; }
+    public ICollection<WeddingBudget> Budgets { get; set; }
+    public ICollection<WeddingTimeline> Timelines { get; set; }
+    public ICollection<Booking> Bookings { get; set; }
+    public ICollection<WeddingPlanner> Planners { get; set; }
+
+}
+public class CoupleMember
+{
+    public Guid Id { get; set; }
+    public Guid CoupleId { get; set; }
+    public string UserId { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<AuditLog> AuditLogs { get; set; }
+
+}
+public class Vendor
+{
+    public Guid Id { get; set; }
+    public string UserId { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
+    public string Description { get; set; }
+    public decimal Pricing { get; set; }
+    public string Location { get; set; }
+    public decimal Rating { get; set; }
+    public string ProfilePicture { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<VendorService> Services { get; set; }
+    public ICollection<VendorAvailability> Availabilities { get; set; }
+    public ICollection<Booking> Bookings { get; set; }
+    public ICollection<Review> Reviews { get; set; }
+    public ICollection<Venue> Venues { get; set; }
+
+}
+public class VendorService
+{
+    public Guid Id { get; set; }
+    public Guid VendorId { get; set; }
+    public string ServiceName { get; set; }
+    public string Description { get; set; }
+    public decimal Price { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<Booking> Bookings { get; set; }
+
+}
+public class VendorAvailability
+{
+    public Guid Id { get; set; }
+    public Guid VendorId { get; set; }
+    public DateTime AvailableDate { get; set; }
+    public TimeSpan FromTime { get; set; }
+    public TimeSpan ToTime { get; set; }
+    public string Status { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class Booking
+{
+    public Guid Id { get; set; }
+    public Guid CoupleId { get; set; }
+    public Guid VendorId { get; set; }
+    public Guid ServiceId { get; set; }
+    public DateTime BookingDate { get; set; }
+    public string ServiceDetails { get; set; }
+    public decimal TotalAmount { get; set; }
+    public string Status { get; set; }
+    public string PaymentStatus { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<Payment> Payments { get; set; }
+    public ICollection<Review> Reviews { get; set; }
+
+}
+public class Payment
+{
+    public Guid Id { get; set; }
+    public Guid BookingId { get; set; }
+    public decimal PaymentAmount { get; set; }
+    public DateTime PaymentDate { get; set; }
+    public string PaymentMethod { get; set; }
+    public string PaymentStatus { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class Review
+{
+    public Guid Id { get; set; }
+    public Guid VendorId { get; set; }
+    public string UserId { get; set; }
+    public int Rating { get; set; }
+    public string Comment { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class WeddingChecklist
+{
+    public Guid Id { get; set; }
+    public Guid CoupleId { get; set; }
+    public string TaskName { get; set; }
+    public string TaskDescription { get; set; }
+    public string TaskStatus { get; set; }
+    public DateTime DueDate { get; set; }
+    public string AssignedTo { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class Guest
+{
+    public Guid Id { get; set; }
+    public Guid CoupleId { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public string RSVPStatus { get; set; }
+    public string MealPreference { get; set; }
+    public string Allergies { get; set; }
+    public string SeatingArrangement { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class WeddingBudget
+{
+    public Guid Id { get; set; }
+    public Guid CoupleId { get; set; }
+    public string Category { get; set; }
+    public decimal AllocatedAmount { get; set; }
+    public decimal SpentAmount { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class WeddingTimeline
+{
+    public Guid Id { get; set; }
+    public Guid CoupleId { get; set; }
+    public string EventName { get; set; }
+    public DateTime EventTime { get; set; }
+    public string EventDescription { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class Message
+{
+    public Guid Id { get; set; }
+    public string SenderUserId { get; set; }
+    public string ReceiverUserId { get; set; }
+    public string MessageContent { get; set; }
+    public DateTime SentAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class AuditLog
+{
+    public Guid Id { get; set; }
+    public string UserId { get; set; }
+    public string EntityType { get; set; }
+    public Guid EntityId { get; set; }
+    public string Action { get; set; }
+    public string OldValue { get; set; }
+    public string NewValue { get; set; }
+    public string Description { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+public class Report
+{
+    public Guid Id { get; set; }
+    public string ReportType { get; set; }
+    public DateTime DateRangeStart { get; set; }
+    public DateTime DateRangeEnd { get; set; }
+    public string ReportData { get; set; }
+    public DateTime GeneratedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+}
+public class WeddingPlanner
+{
+    public Guid Id { get; set; }
+    public string PlannerUserId { get; set; }
+    public Guid CoupleId { get; set; }
+    public DateTime AssignedDate { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<Couple> AssignedCouples { get; set; }
+
+}
+public class Venue
+{
+    public Guid Id { get; set; }
+    public Guid VendorId { get; set; }
+    public string Address { get; set; }
+    public decimal Latitude { get; set; }
+    public decimal Longitude { get; set; }
+    public int Capacity { get; set; }
+    public string IndoorOutdoor { get; set; }
+    public string Amenities { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public bool IsDeleted { get; set; }
+    public ICollection<Booking> Bookings { get; set; }
+}
+public class SystemUsageLog
+{
+    public Guid Id { get; set; }
+    public string UserId { get; set; }
+    public string Action { get; set; }
+    public string Metadata { get; set; }
+    public DateTime Timestamp { get; set; }
+}
