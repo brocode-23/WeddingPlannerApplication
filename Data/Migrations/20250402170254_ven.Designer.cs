@@ -25,7 +25,7 @@ namespace WeddingPlannerApplication.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.ApplicationUser", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -98,7 +98,7 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.Vendor", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.Vendor", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -135,7 +135,7 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.ToTable("Vendors");
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.VendorCat", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.VendorCat", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -152,7 +152,7 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.ToTable("VendorCategories");
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.VendorPackage", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.VendorPackage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -184,7 +184,7 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.ToTable("VendorPackages");
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.VendorRating", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.VendorRating", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -354,9 +354,9 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.Vendor", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.Vendor", b =>
                 {
-                    b.HasOne("DreamDayWeddingPlanner.Models.VendorCat", "Category")
+                    b.HasOne("WeddingPlannerApplication.Models.VendorCat", "Category")
                         .WithMany()
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -365,9 +365,9 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.VendorPackage", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.VendorPackage", b =>
                 {
-                    b.HasOne("DreamDayWeddingPlanner.Models.Vendor", "Vendor")
+                    b.HasOne("WeddingPlannerApplication.Models.Vendor", "Vendor")
                         .WithMany("Packages")
                         .HasForeignKey("VendorId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -376,15 +376,15 @@ namespace WeddingPlannerApplication.Data.Migrations
                     b.Navigation("Vendor");
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.VendorRating", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.VendorRating", b =>
                 {
-                    b.HasOne("DreamDayWeddingPlanner.Models.ApplicationUser", "User")
+                    b.HasOne("WeddingPlannerApplication.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DreamDayWeddingPlanner.Models.Vendor", "Vendor")
+                    b.HasOne("WeddingPlannerApplication.Models.Vendor", "Vendor")
                         .WithMany("Ratings")
                         .HasForeignKey("VendorId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -406,7 +406,7 @@ namespace WeddingPlannerApplication.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("DreamDayWeddingPlanner.Models.ApplicationUser", null)
+                    b.HasOne("WeddingPlannerApplication.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -415,7 +415,7 @@ namespace WeddingPlannerApplication.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("DreamDayWeddingPlanner.Models.ApplicationUser", null)
+                    b.HasOne("WeddingPlannerApplication.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -430,7 +430,7 @@ namespace WeddingPlannerApplication.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DreamDayWeddingPlanner.Models.ApplicationUser", null)
+                    b.HasOne("WeddingPlannerApplication.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -439,14 +439,14 @@ namespace WeddingPlannerApplication.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("DreamDayWeddingPlanner.Models.ApplicationUser", null)
+                    b.HasOne("WeddingPlannerApplication.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DreamDayWeddingPlanner.Models.Vendor", b =>
+            modelBuilder.Entity("WeddingPlannerApplication.Models.Vendor", b =>
                 {
                     b.Navigation("Packages");
 

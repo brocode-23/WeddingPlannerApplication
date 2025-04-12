@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace DreamDayWeddingPlanner.Models
+namespace WeddingPlannerApplication.Models
 {
     public class ApplicationUser : IdentityUser
     {

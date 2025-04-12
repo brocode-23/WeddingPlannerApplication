@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using DreamDayWeddingPlanner.Models;
+using WeddingPlannerApplication.Models;
 
 namespace WeddingPlannerApplication.Areas.Identity.Pages.Account
 {

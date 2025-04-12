@@ -1,4 +1,4 @@
-﻿using DreamDayWeddingPlanner.Models;
+﻿using WeddingPlannerApplication.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace WeddingPlannerApplication.Data.Seeders
