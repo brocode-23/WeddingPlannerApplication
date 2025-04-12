@@ -1,0 +1,143 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Wedding Timeline";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Wedding Day Timeline</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> Add Event
+    </button>
+</div>
+
+<table class="table table-bordered table-hover" id="timelineTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Event</th>
+            <th>Time</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="timelineBody"></tbody>
+</table>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="timelineModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Timeline Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="timelineId">
+                <input type="text" class="form-control mb-2" id="eventName" placeholder="Event Name">
+                <input type="date" class="form-control mb-2" id="eventDate">
+                <input type="time" class="form-control mb-2" id="eventTime">
+                <textarea class="form-control mb-2" id="eventDesc" rows="3" placeholder="Event Description"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveTimelineEvent()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+
+        function loadTimeline() {
+            $.get(`/Timeline/GetTimeline?coupleId=${coupleId}`, function (res) {
+                const body = $("#timelineBody").empty();
+                res.timeline.forEach(e => {
+                    const row = `<tr>
+                        <td>${e.eventName}</td>
+                        <td>${new Date(e.eventTime).toLocaleString()}</td>
+                        <td>${e.eventDescription}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick='editTimeline(${JSON.stringify(e)})'>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteTimeline(${e.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                    body.append(row);
+                });
+            });
+        }
+
+        function openAddModal() {
+            $("#timelineId").val('');
+            $("#eventName, #eventDate, #eventTime, #eventDesc").val('');
+            $("#timelineModal").modal('show');
+        }
+
+        function editTimeline(e) {
+            const dt = new Date(e.eventTime);
+            $("#timelineId").val(e.id);
+            $("#eventName").val(e.eventName);
+            $("#eventDate").val(dt.toISOString().split("T")[0]);
+            $("#eventTime").val(dt.toTimeString().slice(0, 5));
+            $("#eventDesc").val(e.eventDescription);
+            $("#timelineModal").modal('show');
+        }
+
+        function saveTimelineEvent() {
+            const eventDate = $("#eventDate").val();
+            const eventTime = $("#eventTime").val();
+
+            if (!eventDate || !eventTime) {
+                alert("Please provide both date and time for the event.");
+                return;
+            }
+
+            const fullDateTimeString = `${eventDate}T${eventTime}`;
+            const parsedDate = new Date(fullDateTimeString);
+
+            if (isNaN(parsedDate.getTime())) {
+                alert("Invalid date or time format.");
+                return;
+            }
+
+            const data = {
+                id: $("#timelineId").val() || 0,
+                coupleId: coupleId,
+                eventName: $("#eventName").val(),
+                eventTime: fullDateTimeString,
+                eventDescription: $("#eventDesc").val()
+            };
+
+            const isNew = data.id == 0;
+
+            $.ajax({
+                url: isNew ? '/Timeline/AddTimelineEvent' : '/Timeline/UpdateTimelineEvent',
+                method: isNew ? 'POST' : 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => {
+                    $("#timelineModal").modal('hide');
+                    loadTimeline();
+                },
+                error: err => alert("Error saving timeline event: " + err.responseText)
+            });
+        }
+
+        function deleteTimeline(id) {
+            if (!confirm("Are you sure you want to delete this event?")) return;
+
+            $.ajax({
+                url: `/Timeline/DeleteTimelineEvent?id=${id}`,
+                method: 'DELETE',
+                success: loadTimeline,
+                error: err => alert("Error deleting event: " + err.responseText)
+            });
+        }
+
+        $(document).ready(loadTimeline);
+    </script>
+}

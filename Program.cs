@@ -28,6 +28,7 @@ using (var scope = app.Services.CreateScope())
 {
     var serviceProvider = scope.ServiceProvider;
 
+    await DreamDaySeeder.SeedAsync(serviceProvider);
     await UserRoleSeeder.SeedRoles(serviceProvider);
     await UserRoleSeeder.SeedInitialUsers(serviceProvider);
 }
