@@ -1,0 +1,70 @@
+﻿@model WeddingPlannerApplication.ViewModels.RegisterCoupleModel
+
+@{
+    ViewData["Title"] = "Register Couple";
+}
+
+<h2>Register Couple</h2>
+
+<form asp-controller="Auth" asp-action="RegisterCouple" method="post">
+    <h4>Groom Information</h4>
+    <div>
+        <label>First Name</label>
+        <input asp-for="GroomFirstName" class="form-control" />
+    </div>
+    <div>
+        <label>Last Name</label>
+        <input asp-for="GroomLastName" class="form-control" />
+    </div>
+    <div>
+        <label>Email</label>
+        <input asp-for="GroomEmail" class="form-control" />
+    </div>
+    <div>
+        <label>Phone</label>
+        <input asp-for="GroomPhone" class="form-control" />
+    </div>
+    <div>
+        <label>Password</label>
+        <input asp-for="GroomPassword" type="password" class="form-control" />
+    </div>
+
+    <h4>Bride Information</h4>
+    <div>
+        <label>First Name</label>
+        <input asp-for="BrideFirstName" class="form-control" />
+    </div>
+    <div>
+        <label>Last Name</label>
+        <input asp-for="BrideLastName" class="form-control" />
+    </div>
+    <div>
+        <label>Email</label>
+        <input asp-for="BrideEmail" class="form-control" />
+    </div>
+    <div>
+        <label>Phone</label>
+        <input asp-for="BridePhone" class="form-control" />
+    </div>
+    <div>
+        <label>Password</label>
+        <input asp-for="BridePassword" type="password" class="form-control" />
+    </div>
+
+    <h4>Wedding Information</h4>
+    <div>
+        <label>Wedding Date</label>
+        <input asp-for="WeddingDate" type="date" class="form-control" />
+    </div>
+    <div>
+        <label>Budget</label>
+        <input asp-for="Budget" type="number" step="0.01" class="form-control" />
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Register</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

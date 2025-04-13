@@ -1,0 +1,125 @@
+﻿@using DreamDayWeddingPlanner.Models
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Couple Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/lib/fontawesome/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            min-height: 100vh;
+            background-color: #212529;
+            padding-top: 20px;
+        }
+
+            .sidebar .nav-link {
+                color: #adb5bd;
+                padding: 10px 20px;
+                display: flex;
+                align-items: center;
+                font-size: 16px;
+                transition: 0.3s;
+            }
+
+                .sidebar .nav-link i {
+                    margin-right: 10px;
+                }
+
+                .sidebar .nav-link:hover, .sidebar .nav-link.active {
+                    background-color: #343a40;
+                    color: #fff;
+                    border-radius: 5px;
+                }
+
+        .navbar {
+            background-color: #343a40 !important;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #f8f9fa;
+        }
+
+        .navbar .btn-link {
+            color: #f8f9fa;
+            text-decoration: none;
+        }
+
+        main {
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        footer {
+            background-color: #343a40;
+            color: #adb5bd;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-dark sticky-top shadow p-3">
+        <div class="container-fluid d-flex justify-content-between">
+            <a class="navbar-brand" href="#">DreamDay Couple</a>
+            <div>
+                <span class="text-white me-3">@User.Identity?.Name</span>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <form class="d-inline" asp-controller="Auth" asp-action="Logout" method="post">
+                        <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
+                    </form>
+                }
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 d-md-block sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Index"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Checklist"><i class="fas fa-tasks"></i> Checklist</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/GuestList"><i class="fas fa-user-friends"></i> Guest List</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Vendors"><i class="fas fa-store"></i> Vendors</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Venue"><i class="fas fa-map-marker-alt"></i> Venues</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Budget"><i class="fas fa-wallet"></i> Budget Tracker</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Timeline"><i class="fas fa-calendar-alt"></i> Timeline</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Couple/Messages"><i class="fas fa-comments"></i> Messages</a></li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto px-4 pt-4">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <footer class="text-center py-3">
+        <small>© @DateTime.Now.Year DreamDay Couple Panel</small>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

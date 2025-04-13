@@ -1,0 +1,134 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Budget Tracker";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Wedding Budget Tracker</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> Add Budget Item
+    </button>
+</div>
+
+<table class="table table-bordered table-hover" id="budgetTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Category</th>
+            <th>Allocated</th>
+            <th>Spent</th>
+            <th>Remaining</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="budgetBody"></tbody>
+</table>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="budgetModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Budget Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="budgetId">
+                <input type="text" class="form-control mb-2" id="category" placeholder="Category">
+                <input type="number" class="form-control mb-2" id="allocated" placeholder="Allocated Amount">
+                <input type="number" class="form-control mb-2" id="spent" placeholder="Spent Amount">
+                <div id="budgetWarning" class="text-danger small d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveBudgetItem()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+
+        function loadBudgetItems() {
+            $.get(`/Budget/GetBudgetItems?coupleId=${coupleId}`, function (res) {
+                const body = $("#budgetBody").empty();
+                res.budgetItems.forEach(b => {
+                    const remaining = (b.allocatedAmount - b.spentAmount).toFixed(2);
+                    const row = `<tr>
+                        <td>${b.category}</td>
+                        <td>Rs. ${b.allocatedAmount.toFixed(2)}</td>
+                        <td>Rs. ${b.spentAmount.toFixed(2)}</td>
+                        <td class="${remaining < 0 ? 'text-danger fw-bold' : ''}">Rs. ${remaining}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick='editBudgetItem(${JSON.stringify(b)})'>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteBudgetItem(${b.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                    body.append(row);
+                });
+            });
+        }
+
+        function openAddModal() {
+            $("#budgetId").val('');
+            $("#category, #allocated, #spent").val('');
+            $("#budgetWarning").addClass('d-none').text('');
+            $("#budgetModal").modal('show');
+        }
+
+        function editBudgetItem(b) {
+            $("#budgetId").val(b.id);
+            $("#category").val(b.category);
+            $("#allocated").val(b.allocatedAmount);
+            $("#spent").val(b.spentAmount);
+            $("#budgetWarning").addClass('d-none').text('');
+            $("#budgetModal").modal('show');
+        }
+
+        function saveBudgetItem() {
+            const data = {
+                id: $("#budgetId").val() || 0,
+                coupleId: coupleId,
+                category: $("#category").val(),
+                allocatedAmount: parseFloat($("#allocated").val()),
+                spentAmount: parseFloat($("#spent").val())
+            };
+
+            const isNew = data.id == 0;
+
+            $.ajax({
+                url: isNew ? '/Budget/AddBudgetItem' : '/Budget/UpdateBudgetItem',
+                method: isNew ? 'POST' : 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (res) {
+                    $("#budgetModal").modal('hide');
+                    loadBudgetItems();
+
+                    if (res.warning) {
+                        alert(res.warning);
+                    }
+                },
+                error: err => alert("Error saving budget item: " + err.responseText)
+            });
+        }
+
+        function deleteBudgetItem(id) {
+            if (!confirm("Are you sure you want to delete this item?")) return;
+
+            $.ajax({
+                url: `/Budget/DeleteBudgetItem?id=${id}`,
+                method: 'DELETE',
+                success: loadBudgetItems,
+                error: err => alert("Error deleting budget item: " + err.responseText)
+            });
+        }
+
+        $(document).ready(loadBudgetItems);
+    </script>
+}
