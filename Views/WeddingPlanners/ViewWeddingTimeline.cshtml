@@ -1,0 +1,125 @@
+﻿@model IEnumerable<WeddingPlannerApplication.Models.WeddingTimeline>
+@using Microsoft.AspNetCore.Identity
+@using DreamDayWeddingPlanner.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    Layout = "~/Views/WeddingPlanners/_WeddingLayout.cshtml";
+    ViewData["Title"] = "Wedding Timeline";
+}
+
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No timeline items found for this wedding.</div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-2">Wedding Timeline</h4>
+        </div>
+        <a asp-action="CreateTimeline" asp-route-coupleId="@Model.First().CoupleId" class="btn btn-outline-primary mb-3">
+            <i class="bi bi-plus-circle"></i> Add New Event
+        </a>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover shadow-sm">
+                <thead class="table-header">
+                    <tr>
+                        <th>Event</th>
+                        <th>Description</th>
+                        <th>Date & Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EventName</td>
+                            <td>@item.EventDescription</td>
+                            <td>
+                                <form asp-action="UpdateTimeline" method="post" class="d-flex align-items-center gap-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <input type="hidden" name="coupleId" value="@item.CoupleId" />
+                                    <input type="datetime-local"
+                                           class="form-control"
+                                           name="eventTime"
+                                           value="@item.EventTime.ToString("yyyy-MM-ddTHH:mm")"
+                                           required />
+
+                                </form>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="submit" class="btn btn-sm btn-success">Update</button>
+                                    <form asp-action="DeleteTimeline" method="post" onsubmit="return confirm('Are you sure you want to delete this event?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="coupleId" value="@item.CoupleId" />
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet" />
+
+<style>
+    .table {
+        font-size: 0.875rem;
+        border-radius: 0.375rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+        .table th, .table td {
+            vertical-align: middle;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+    .table-header th {
+        background-color: #6c757d;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6;
+    }
+
+        .table-bordered th, .table-bordered td {
+            border-color: #dee2e6;
+        }
+
+    .form-control {
+        font-size: 0.875rem;
+        border-radius: 0.375rem;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        transition: all 0.2s ease;
+    }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+</style>

@@ -1,0 +1,77 @@
+﻿@model WeddingPlannerApplication.Models.WeddingChecklist
+@using Microsoft.AspNetCore.Identity
+@using DreamDayWeddingPlanner.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    Layout = "~/Views/WeddingPlanners/_WeddingLayout.cshtml";
+    ViewData["Title"] = "Create Checklist Task";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+                <div class="card-header bg-transparent border-0 text-center pb-0">
+                    <h2 class="fw-bold text-muted" style="font-family: 'Segoe UI', sans-serif;"> Create a New Task</h2>
+                    <p class="text-muted small">Add a special to-do for your couple's big day</p>
+                </div>
+                <div class="card-body p-4">
+
+                    <form asp-action="CreateChecklist" method="post" class="needs-validation" novalidate>
+                        <input type="hidden" name="CoupleId" value="@ViewBag.CoupleId" />
+
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control rounded-3" id="TaskName" name="TaskName" placeholder="Task Name" required>
+                            <label for="TaskName"> Task Name</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <textarea class="form-control rounded-3" id="TaskDescription" name="TaskDescription" placeholder="Task Description" style="height: 120px;" required></textarea>
+                            <label for="TaskDescription"> Description</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <input type="date" class="form-control rounded-3" id="DueDate" name="DueDate" required>
+                            <label for="DueDate"> Due Date</label>
+                        </div>
+
+                        <div class="form-floating mb-4">
+                            <select class="form-select rounded-3" id="TaskStatus" name="TaskStatus" required>
+                                <option value="Pending">Pending</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                            <label for="TaskStatus"> Status</label>
+                        </div>
+
+                        <button type="submit" class="btn w-100 py-2 text-white fs-5 rounded-pill" style="background: linear-gradient(to right, #b983ff, #a86bfa); border: none;">
+                            Create Task
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a asp-action="ViewChecklists" asp-route-coupleId="@ViewBag.CoupleId" class="btn btn-secondary">Back</a>
+</div>
+<style>
+    body {
+        background-color: #fdf8ff;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .card {
+        background-color: #fffdfd;
+        box-shadow: 0 0 20px rgba(185, 131, 255, 0.1);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #d3a4ff;
+        box-shadow: 0 0 0 0.2rem rgba(185, 131, 255, 0.2);
+    }
+
+</style>
