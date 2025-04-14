@@ -80,10 +80,12 @@
         <div class="container-fluid d-flex justify-content-between">
             <a class="navbar-brand" href="#">DreamDay Couple</a>
             <div>
-                <span class="text-white me-3">@User.Identity?.Name</span>
+                <span class="text-white">@User.Identity?.Name</span>
+                <a class="nav-link d-inline text-white" href="/">Home</a>
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <form class="d-inline" asp-controller="Auth" asp-action="Logout" method="post">
+                        @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-outline-light btn-sm">Logout</button>
                     </form>
                 }
@@ -100,10 +102,10 @@
                     <li class="nav-item"><a class="nav-link" href="/Couple/Checklist"><i class="fas fa-tasks"></i> Checklist</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Couple/GuestList"><i class="fas fa-user-friends"></i> Guest List</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Couple/Vendors"><i class="fas fa-store"></i> Vendors</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Couple/Venue"><i class="fas fa-map-marker-alt"></i> Venues</a></li>
+                    <!-- <li class="nav-item"><a class="nav-link" href="/Couple/Venue"><i class="fas fa-map-marker-alt"></i> Venues</a></li> -->
                     <li class="nav-item"><a class="nav-link" href="/Couple/Budget"><i class="fas fa-wallet"></i> Budget Tracker</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Couple/Timeline"><i class="fas fa-calendar-alt"></i> Timeline</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Couple/Messages"><i class="fas fa-comments"></i> Messages</a></li>
+                    <!--<li class="nav-item"><a class="nav-link" href="/Couple/Messages"><i class="fas fa-comments"></i> Messages</a></li>-->
                 </ul>
             </nav>
 
