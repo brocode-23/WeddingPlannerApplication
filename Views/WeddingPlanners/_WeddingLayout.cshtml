@@ -85,6 +85,7 @@
             <a class="navbar-brand" href="#">DreamDay Wedding Planner</a>
             <div>
                 <span class="text-white me-3">@User.Identity?.Name</span>
+                <a class="nav-link d-inline text-white me-3" href="/">Home</a>
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

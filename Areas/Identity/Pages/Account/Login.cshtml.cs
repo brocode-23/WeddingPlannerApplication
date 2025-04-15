@@ -125,7 +125,7 @@ namespace WeddingPlannerApplication.Areas.Identity.Pages.Account
                     }
                     else if (await _userManager.IsInRoleAsync(user, "Planner"))
                     {
-                        return LocalRedirect("~/Planner/Index");
+                        return LocalRedirect("~/WeddingPlanners/Index");
                     }
                     else if (await _userManager.IsInRoleAsync(user, "Couple"))
                     {

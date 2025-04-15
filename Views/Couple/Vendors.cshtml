@@ -189,7 +189,7 @@
 
                     $.get(`/Vendor/GetVendorReviews?vendorId=${vendorId}`, res => {
                         const reviewHtml = res.reviews.map(r => {
-                            console.log(r.userId, currentUserId);
+                            // console.log(r.userId, currentUserId);
                             const deleteBtn = r.userId === currentUserId
                                 ? `<button class="btn btn-sm btn-danger ms-2" onclick="deleteReview(${r.id})">🗑️ Delete</button>`
                                 : '';
