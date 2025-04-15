@@ -1,0 +1,149 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Guest List";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Wedding Guest List</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> Add Guest
+    </button>
+</div>
+
+<table class="table table-bordered table-hover" id="guestTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>RSVP</th>
+            <th>Meal</th>
+            <th>Allergies</th>
+            <th>Seat</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="guestBody"></tbody>
+</table>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="guestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Guest Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="guestId">
+                <div class="row mb-2">
+                    <div class="col">
+                        <input type="text" class="form-control" id="firstName" placeholder="First Name">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control" id="lastName" placeholder="Last Name">
+                    </div>
+                </div>
+                <input type="email" class="form-control mb-2" id="email" placeholder="Email">
+                <select class="form-control mb-2" id="rsvp">
+                    <option value="">-- Select RSVP --</option>
+                    <option>Accepted</option>
+                    <option>Declined</option>
+                    <option>Pending</option>
+                </select>
+                <input type="text" class="form-control mb-2" id="meal" placeholder="Meal Preference">
+                <input type="text" class="form-control mb-2" id="allergies" placeholder="Allergies">
+                <input type="text" class="form-control mb-2" id="seat" placeholder="Seating Arrangement">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveGuest()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+
+        function loadGuests() {
+            $.get(`/GuestList/GetGuests?coupleId=${coupleId}`, function (res) {
+                const tbody = $("#guestBody").empty();
+                res.guests.forEach(g => {
+                    const row = `<tr>
+                        <td>${g.firstName} ${g.lastName}</td>
+                        <td>${g.email}</td>
+                        <td>${g.rsvpStatus}</td>
+                        <td>${g.mealPreference}</td>
+                        <td>${g.allergies}</td>
+                        <td>${g.seatingArrangement}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick='editGuest(${JSON.stringify(g)})'><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteGuest(${g.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+            });
+        }
+
+        function openAddModal() {
+            $("#guestId").val('');
+            $("#firstName, #lastName, #email, #rsvp, #meal, #allergies, #seat").val('');
+            $("#guestModal").modal('show');
+        }
+
+        function editGuest(g) {
+            $("#guestId").val(g.id);
+            $("#firstName").val(g.firstName);
+            $("#lastName").val(g.lastName);
+            $("#email").val(g.email);
+            $("#rsvp").val(g.rsvpStatus);
+            $("#meal").val(g.mealPreference);
+            $("#allergies").val(g.allergies);
+            $("#seat").val(g.seatingArrangement);
+            $("#guestModal").modal('show');
+        }
+
+        function saveGuest() {
+            const data = {
+                id: $("#guestId").val() || 0,
+                coupleId: coupleId,
+                firstName: $("#firstName").val(),
+                lastName: $("#lastName").val(),
+                email: $("#email").val(),
+                rsvpStatus: $("#rsvp").val(),
+                mealPreference: $("#meal").val(),
+                allergies: $("#allergies").val(),
+                seatingArrangement: $("#seat").val()
+            };
+
+            const isNew = data.id == 0;
+
+            $.ajax({
+                url: isNew ? '/GuestList/AddGuest' : '/GuestList/UpdateGuest',
+                method: isNew ? 'POST' : 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => {
+                    $("#guestModal").modal('hide');
+                    loadGuests();
+                },
+                error: err => alert("Error saving guest: " + err.responseText)
+            });
+        }
+
+        function deleteGuest(id) {
+            if (!confirm("Are you sure you want to remove this guest?")) return;
+
+            $.ajax({
+                url: `/GuestList/DeleteGuest?id=${id}`,
+                method: 'DELETE',
+                success: loadGuests,
+                error: err => alert("Error deleting guest: " + err.responseText)
+            });
+        }
+
+        $(document).ready(loadGuests);
+    </script>
+}

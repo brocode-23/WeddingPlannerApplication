@@ -1,4 +1,7 @@
-﻿namespace WeddingPlannerApplication.Models
+﻿using DreamDayWeddingPlanner.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+
+namespace WeddingPlannerApplication.Models
 {
     public class Booking
     {
@@ -14,7 +17,9 @@
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
-        public ICollection<Payment> Payments { get; set; }
-        public ICollection<Review> Reviews { get; set; }
+        [ValidateNever]
+        public Vendor Vendor { get; set; }
+        public ICollection<Payment>? Payments { get; set; } = new List<Payment>();
+        public ICollection<Review>? Reviews { get; set; } = new List<Review>();
     }
 }

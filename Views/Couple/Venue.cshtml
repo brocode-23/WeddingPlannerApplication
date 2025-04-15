@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Venues";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Wedding Venues</h2>
+</div>
+
+<div class="row mb-3">
+    <div class="col"><input type="text" id="addressFilter" class="form-control" placeholder="Address" /></div>
+    <div class="col"><input type="number" id="capacityFilter" class="form-control" placeholder="Min Capacity" /></div>
+    <div class="col">
+        <select id="typeFilter" class="form-select">
+            <option value="">All</option>
+            <option>Indoor</option>
+            <option>Outdoor</option>
+            <option>Both</option>
+        </select>
+    </div>
+    <div class="col"><button class="btn btn-dark" onclick="loadVenues()">Search</button></div>
+</div>
+
+<table class="table table-bordered table-hover" id="venueTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Address</th>
+            <th>Capacity</th>
+            <th>Type (Indoor/Outdoor)</th>
+            <th>Amenities</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="venueBody">
+        <!-- Rows populated dynamically -->
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+
+        function loadVenues() {
+            const address = $("#addressFilter").val();
+            const capacity = $("#capacityFilter").val();
+            const type = $("#typeFilter").val();
+
+            $.get('/Venue/GetVenuesFiltered', { address, capacity, type }, function (res) {
+                $.get(`/Booking/GetVenueBooking?coupleId=${coupleId}`, function (venueBooking) {
+                    const venueBody = $("#venueBody").empty();
+
+                    res.forEach(v => {
+                        const isBooked = venueBooking && venueBooking.serviceId === v.id;
+                        const actionBtn = isBooked
+                            ? `<button class="btn btn-sm btn-danger" onclick="cancelVenueBooking('${venueBooking.id}')">❌ Cancel</button>`
+                            : `<button class="btn btn-sm btn-success" onclick="bookVenue(${v.id})">📅 Book</button>`;
+
+                        const row = `<tr>
+                            <td>${v.address}</td>
+                            <td>${v.capacity}</td>
+                            <td>${v.indoorOutdoor}</td>
+                            <td>${v.amenities}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info me-1" onclick="viewOnMap(${v.latitude}, ${v.longitude})">📍 Map</button>
+                                ${actionBtn}
+                            </td>
+                        </tr>`;
+                        venueBody.append(row);
+                    });
+                });
+            }).fail(xhr => alert("Failed to load venues: " + xhr.responseText));
+        }
+
+        function viewOnMap(lat, lng) {
+            window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+        }
+
+        function bookVenue(venueId) {
+            $.get(`/Venue/GetVenueById?id=${venueId}`, function (venue) {
+                $.get(`/Venue/HasActiveVenueBooking?coupleId=${coupleId}`, function (hasBooking) {
+                    if (hasBooking) {
+                        alert("You already have a booked venue. Cancel it before booking a new one.");
+                        return;
+                    }
+
+                    const data = {
+                        coupleId: coupleId,
+                        vendorId: venue.vendorId,
+                        serviceId: venue.id,
+                        bookingDate: new Date().toISOString(),
+                        serviceDetails: "Venue Booking",
+                        totalAmount: 0,
+                        status: "Confirmed",
+                        paymentStatus: "Pending"
+                    };
+
+                    $.ajax({
+                        url: '/Booking/CreateVenueBooking',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(data),
+                        success: () => {
+                            alert("Venue booked successfully.");
+                            loadVenues();
+                        },
+                        error: err => alert("Booking failed: " + err.responseText)
+                    });
+                });
+            });
+        }
+
+        function cancelVenueBooking(bookingId) {
+            if (!confirm("Are you sure you want to cancel this booking?")) return;
+
+            $.ajax({
+                url: `/Booking/CancelBooking?id=${bookingId}`,
+                type: 'DELETE',
+                success: () => {
+                    alert("Booking cancelled.");
+                    loadVenues();
+                },
+                error: err => alert("Cancel failed: " + err.responseText)
+            });
+        }
+
+        $(document).ready(loadVenues);
+    </script>
+}

@@ -1,7 +1,155 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
 }
+<div class="container py-4">
+    <h2 class="mb-4">Wedding Dashboard</h2>
 
-Couple dashboard
+    <div class="row mb-4">
+        <div class="col-md-4 d-flex">
+            <div class="card text-white bg-primary w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Wedding Date</h5>
+                    <p class="card-text" id="weddingDate">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex">
+            <div class="card text-white bg-success w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Total Guests</h5>
+                    <p class="card-text" id="guestCount">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex">
+            <div class="card text-white bg-info w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Budget Overview</h5>
+                    <p class="card-text">
+                        <strong>Total:</strong> <span id="totalBudget">Loading...</span><br />
+                        <strong>Left:</strong> <span id="budgetLeft">Loading...</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-start mb-3">
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editWeddingModal">
+            Edit Wedding Details
+        </button>
+    </div>
+
+    <div class="modal fade" id="editWeddingModal" tabindex="-1" aria-labelledby="editWeddingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editWeddingModalLabel">Edit Wedding Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editWeddingDate" class="form-label">Wedding Date</label>
+                        <input type="date" class="form-control" id="editWeddingDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editBudget" class="form-label">Total Wedding Budget (Rs.)</label>
+                        <input type="number" class="form-control" id="editBudget" step="0.01">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitWeddingEdit()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h4>Checklist Progress</h4>
+        <div class="progress">
+            <div class="progress-bar" id="checklistProgress" role="progressbar" style="width: 0%">0%</div>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <h4>Latest Bookings</h4>
+        <table class="table table-bordered">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Service</th>
+                    <th>Vendor</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="upcomingBookingsBody">
+            </tbody>
+        </table>
+    </div>
+
+    <!--<div class="text-end">
+        <a class="btn btn-outline-primary" href="/Couple/Timeline">View Full Timeline</a>
+    </div>-->
+</div>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+
+        $(document).ready(() => {
+            loadDashboard();
+        });
+
+        function loadDashboard() {
+            $.get(`/Couple/GetDashboardData?coupleId=${coupleId}`, function (data) {
+                $("#weddingDate").text(data.weddingDate);
+                $("#guestCount").text(data.totalGuests);
+                $("#budgetLeft").text("Rs. " + data.budgetLeft.toLocaleString());
+                $("#checklistProgress").css("width", data.checklistPercent + "%").text(data.checklistPercent + "%");
+
+                const bookings = data.upcomingBookings;
+                const tbody = $("#upcomingBookingsBody");
+                $("#editWeddingDate").val(data.weddingDate);
+                $("#totalBudget").text("Rs. " + data.totalBudget.toLocaleString());
+                $("#editBudget").val(data.totalBudget.toFixed(2));
+                tbody.empty();
+                bookings.forEach(b => {
+                    tbody.append(`<tr>
+                            <td>${b.serviceDetails}</td>
+                            <td>${b.vendorName}</td>
+                            <td>${new Date(b.bookingDate).toLocaleDateString()}</td>
+                            <td>${b.status}</td>
+                        </tr>`);
+                });
+            }).fail(err => {
+                alert("Failed to load dashboard: " + err.responseText);
+            });
+        }
+
+        function submitWeddingEdit() {
+            const updated = {
+                id: coupleId,
+                weddingDate: $("#editWeddingDate").val(),
+                budget: parseFloat($("#editBudget").val())
+            };
+
+            $.ajax({
+                url: "/Couple/UpdateWeddingDetails",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(updated),
+                success: res => {
+                    $("#editWeddingModal").modal('hide');
+                    alert(res.message);
+                    loadDashboard();
+                },
+                error: err => {
+                    alert("Failed to update wedding details: " + err.responseText);
+                }
+            });
+        }
+    </script>
+}

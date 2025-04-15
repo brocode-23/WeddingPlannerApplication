@@ -1,8 +1,43 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@using DreamDayWeddingPlanner.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
     ViewData["Title"] = "Home Page";
+    string dashboardUrl = "/";
+    bool isLoggedIn = SignInManager.IsSignedIn(User);
+    if (isLoggedIn)
+    {
+        var user = await UserManager.GetUserAsync(User);
+        if (await UserManager.IsInRoleAsync(user, "Admin"))
+        {
+            dashboardUrl = "/Admin/Index";
+        }
+        else if (await UserManager.IsInRoleAsync(user, "Planner"))
+        {
+            dashboardUrl = "/Planner/Index";
+        }
+        else if (await UserManager.IsInRoleAsync(user, "Couple"))
+        {
+            dashboardUrl = "/Couple/Index";
+        }
+        else if (await UserManager.IsInRoleAsync(user, "Vendor"))
+        {
+            dashboardUrl = "/Vendor/Index";
+        }
+    }
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center" style="margin-top: 100px;">
+    <h1 class="display-4 mb-4">Welcome to DreamDay</h1>
+    @if (!isLoggedIn)
+    {
+        <a href="/Auth/RegisterCouple" class="btn btn-primary btn-lg me-3">Register as Couple</a>
+        <a href="#" class="btn btn-secondary btn-lg">Register as Wedding Planner</a>
+    }
+    else
+    {
+        <a href="@dashboardUrl" class="btn btn-success btn-lg">Go to Dashboard</a>
+    }
 </div>

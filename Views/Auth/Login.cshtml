@@ -1,0 +1,33 @@
+﻿@model WeddingPlannerApplication.ViewModels.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h2>Login</h2>
+
+<form asp-controller="Auth" asp-action="Login" method="post">
+    <div>
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" />
+    </div>
+    <div>
+        <label>Password</label>
+        <input asp-for="Password" type="password" class="form-control" />
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-success">Login</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

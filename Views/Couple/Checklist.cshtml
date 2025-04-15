@@ -1,0 +1,196 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Checklist";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Wedding Checklist</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> Add Task
+    </button>
+</div>
+
+<table class="table table-bordered table-hover" id="checklistTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Task</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Due Date</th>
+            <th>Assigned To</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="checklistBody">
+        <!-- Rows will be populated via JavaScript -->
+    </tbody>
+</table>
+
+<!-- Modal: Add/Edit Task -->
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="taskForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskModalLabel">Add/Edit Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="taskId" />
+                    <div class="mb-3">
+                        <label>Task Name</label>
+                        <input type="text" id="taskName" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Description</label>
+                        <textarea id="taskDescription" class="form-control"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label>Status</label>
+                        <select id="taskStatus" class="form-select">
+                            <option value="Incomplete">Incomplete</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Due Date</label>
+                        <input type="date" id="dueDate" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label>Assigned To</label>
+                        <select id="assignedTo" class="form-select">
+                            <option value="partner1">Partner 1</option>
+                            <option value="partner2">Partner 2</option>
+                            <option value="both">Both</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Save Task</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const coupleId = @Html.Raw(ViewBag.CoupleId);
+
+        function loadChecklist() {
+            fetch(`/Checklist/GetChecklist?coupleId=${coupleId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const body = document.getElementById('checklistBody');
+                    body.innerHTML = '';
+                    data.checklist.forEach(task => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${task.taskName}</td>
+                            <td>${task.taskDescription || ''}</td>
+                            <td>${task.taskStatus}</td>
+                            <td>${task.dueDate?.split('T')[0]}</td>
+                            <td>${task.assignedTo}</td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editTask(${task.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                                ${task.taskStatus !== 'Completed' ? `
+                                <button class="btn btn-sm btn-success" onclick="markCompleted(${task.id})">
+                                    <i class="fas fa-check"></i>
+                                </button>` : ''}
+                            </td>
+                        `;
+                        body.appendChild(row);
+                    });
+                });
+        }
+
+        document.getElementById('taskForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const task = {
+                id: document.getElementById('taskId').value || 0,
+                coupleId: coupleId,
+                taskName: document.getElementById('taskName').value,
+                taskDescription: document.getElementById('taskDescription').value,
+                taskStatus: document.getElementById('taskStatus').value,
+                dueDate: document.getElementById('dueDate').value,
+                assignedTo: document.getElementById('assignedTo').value
+            };
+
+            const method = task.id == 0 ? 'POST' : 'PUT';
+            const url = task.id == 0 ? '/Checklist/AddTask' : '/Checklist/UpdateTask';
+
+            fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(task)
+            })
+                .then(res => res.ok ? res.json() : Promise.reject(res))
+                .then(() => {
+                    document.getElementById('taskForm').reset();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+                    modal.hide();
+                    loadChecklist();
+                });
+        });
+
+        function editTask(id) {
+            fetch(`/Checklist/GetChecklist?coupleId=${coupleId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const task = data.checklist.find(t => t.id === id);
+                    if (!task) return;
+
+                    document.getElementById('taskId').value = task.id;
+                    document.getElementById('taskName').value = task.taskName;
+                    document.getElementById('taskDescription').value = task.taskDescription;
+                    document.getElementById('taskStatus').value = task.taskStatus;
+                    document.getElementById('dueDate').value = task.dueDate?.split('T')[0];
+                    document.getElementById('assignedTo').value = task.assignedTo;
+
+                    new bootstrap.Modal(document.getElementById('addTaskModal')).show();
+                });
+        }
+
+        function deleteTask(id) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                fetch(`/Checklist/DeleteTask?id=${id}`, { method: 'DELETE' })
+                    .then(() => loadChecklist());
+            }
+        }
+
+        function markCompleted(id) {
+            if (!confirm('Are you sure you want to mark this task as completed?')) return;
+
+            fetch(`/Checklist/GetChecklist?coupleId=${coupleId}`)
+                .then(res => res.json())
+                .then(data => {
+                    const task = data.checklist.find(t => t.id === id);
+                    if (!task) return;
+                    task.taskStatus = "Completed";
+                    fetch('/Checklist/UpdateTask', {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(task)
+                    })
+                        .then(() => loadChecklist());
+                });
+        }
+
+        function openAddModal() {
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskId').value = "";
+
+            new bootstrap.Modal(document.getElementById('addTaskModal')).show();
+        }
+
+        loadChecklist();
+    </script>
+}
