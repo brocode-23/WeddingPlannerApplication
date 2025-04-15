@@ -1,0 +1,72 @@
+﻿@using DreamDayWeddingPlanner.Models
+@using WeddingPlannerApplication.Models
+@{
+    Layout = "~/Views/WeddingPlanners/_WeddingLayout.cshtml";
+    ViewData["Title"] = "Vendors for Wedding";
+
+    var vendorBookings = ViewBag.VendorBookings as IEnumerable<dynamic>;
+}
+
+
+@if (vendorBookings == null || !vendorBookings.Any())
+{
+    <div class="alert alert-info">No vendors found for this couple.</div>
+}
+else
+{
+
+     <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-2">Vendors for Wedding</h4>
+        </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Vendor Name</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Booking Date</th>
+                    <th>Service Details</th>
+                    <th>Total Amount</th>
+                    <th>Status</th>
+                    <th>Payment Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in vendorBookings)
+                {
+                    var vendor = item.Vendor;
+                    var booking = item.Booking;
+
+                    <tr>
+                        <td>@vendor?.Name</td>
+                        <td>@vendor?.Description</td>
+                        <td>@vendor?.Location</td> 
+                        <td>@booking?.BookingDate.ToShortDateString()</td>
+                        <td>@booking?.ServiceDetails</td>
+                        <td>@booking?.TotalAmount.ToString("N2")</td>
+                        <td>@booking?.Status</td>
+                        <td>@booking?.PaymentStatus</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    </div>
+}
+
+<style>
+    table {
+        font-size: 0.95rem;
+    }
+
+    .table th,
+    .table td {
+        vertical-align: middle;
+    }
+
+    .badge {
+        font-size: 0.85rem;
+    }
+</style>
