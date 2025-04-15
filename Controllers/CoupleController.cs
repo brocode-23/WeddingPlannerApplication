@@ -187,5 +187,17 @@ namespace WeddingPlannerApplication.Controllers
             ViewBag.CoupleId = coupleMember.CoupleId;
             return View();
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Planner()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var coupleMember = await _context.CoupleMembers.FirstOrDefaultAsync(cm => cm.UserId == user.Id && !cm.IsDeleted);
+            if (coupleMember == null)
+                return RedirectToAction("Index", "Home");
+
+            ViewBag.CoupleId = coupleMember.CoupleId;
+            return View();
+        }
     }
 }

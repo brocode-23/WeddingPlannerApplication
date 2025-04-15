@@ -1,0 +1,103 @@
+﻿@model WeddingPlannerApplication.ViewModels.RegisterPlannerModel
+
+@{
+    ViewData["Title"] = "Register as Wedding Planner";
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        <ul>
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <li>@error.ErrorMessage</li>
+            }
+        </ul>
+    </div>
+}
+
+<style>
+    .dreamday-card {
+        background-color: #fffdf7;
+        border: 1px solid #dee2e6;
+        border-radius: 0.75rem;
+    }
+
+    .dreamday-header {
+        background-color: #2c3e50;
+        color: #f8f9fa;
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+    }
+
+    .dreamday-section-title {
+        color: #2c3e50;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .dreamday-btn {
+        background-color: #2c3e50;
+        border-color: #2c3e50;
+        color: #f8f9fa;
+    }
+
+        .dreamday-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #2c3e50;
+            color: #2c3e50;
+        }
+
+    .form-label {
+        font-weight: 500;
+        color: #343a40;
+    }
+</style>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card dreamday-card shadow-sm">
+                <div class="card-header dreamday-header text-center">
+                    <h2 class="mb-0">Register as Wedding Planner</h2>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Auth" asp-action="RegisterPlanner" method="post">
+                        <div class="row">
+                            <div class="col-md-6 offset-md-3">
+                                <div class="mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input asp-for="FirstName" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input asp-for="LastName" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input asp-for="Email" type="email" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input asp-for="Phone" class="form-control" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password</label>
+                                    <input asp-for="Password" type="password" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-end">
+                            <button type="submit" class="btn dreamday-btn btn-lg px-4 mt-3">Register</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

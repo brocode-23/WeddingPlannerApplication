@@ -1,0 +1,173 @@
+﻿@model IEnumerable<WeddingPlannerApplication.Models.Couple>
+@using Microsoft.AspNetCore.Identity
+@using DreamDayWeddingPlanner.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    Layout = "~/Views/WeddingPlanners/_WeddingLayout.cshtml";
+    ViewData["Title"] = "Wedding Planner Dashboard";
+}
+<h2>@ViewData["Weddings"]</h2>
+
+@if ( !Model.Any())
+{
+    <div class="alert alert-info">You are not assigned to any weddings yet.</div>
+}
+else
+{
+    <div class="accordion" id="weddingAccordion">
+        @foreach (var couple in Model)
+        {
+            var accordionId = $"accordionItem_{couple.Id}";
+            <div class="container px-3">
+                <div class="row gy-3">
+                    <div class="col-12">
+                        <div class="wedding-list-item d-flex justify-content-between align-items-center flex-wrap">
+
+                            <div class="wedding-sub">
+                                Wedding on
+                               
+                                <span class="wedding-date">@couple.WeddingDate.ToShortDateString()</span>
+                                <span class="wedding-budget">Rs. @couple.Budget</span>
+                            </div>
+                           
+                            <div class="action-btns mt-2 mt-md-0">
+                               
+                                <a href="@Url.Action("ViewChecklists", new { coupleId = couple.Id })" class="btn btn-custom btn-sm">
+                                    <i class="bi bi-check2-square"></i> Checklist
+                                </a>
+                                <a href="@Url.Action("ViewWeddingTimeline", new { coupleId = couple.Id })" class="btn btn-custom btn-sm">
+                                    <i class="bi bi-clock-history"></i> Timeline
+                                </a>
+                                <a href="@Url.Action("ViewWeddingVendors", new { coupleId = couple.Id })" class="btn btn-custom btn-sm">
+                                    <i class="bi bi-calendar2-event"></i> Vendors
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+    <!-- Include Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        .wedding-list-item {
+            background: linear-gradient(to right, #f8f9fa, #e2e6ea); /* Light gray gradient */
+            border: 1px solid #d6d8db; /* Soft gray border */
+            border-radius: 1rem;
+            padding: 1.2rem 1.5rem;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.2rem;
+        }
+
+            .wedding-list-item:hover {
+                background-color: #f1f3f5; /* Lighter gray hover effect */
+                transform: scale(1.01);
+                
+            }
+
+        .wedding-sub {
+            font-size: 1rem;
+            color: #495057; /* Neutral text color */
+            margin-top: 5px;
+            font-weight: 400;
+            line-height: 1.5;
+            display: flex;
+            gap: 6px;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .wedding-date {
+            font-weight: 500;
+            color: #007bff; /* Blue for wedding date */
+        }
+
+        .wedding-budget {
+            font-weight: 500;
+            color: #28a745; /* Green for budget */
+        }
+        .action-btns a {
+            margin-right: 0.6rem;
+            font-size: 0.85rem;
+            border-radius: 1.5rem;
+            padding: 0.4rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+
+            .action-btns a i {
+                font-size: 1.1rem;
+            }
+
+        .btn-custom {
+            background-color: transparent;
+            border: 2px solid transparent;
+            color: #6c757d;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        }
+
+            .btn-custom:hover {
+                background-color: #f8f9fa;
+                border-color: #6c757d;
+                color: #495057;
+                transform: translateY(-2px);
+            }
+
+            .btn-custom:active {
+                background-color: #e2e6ea;
+                border-color: #6c757d;
+                transform: translateY(1px);
+            }
+
+            /* Button color scheme */
+            .btn-custom:nth-child(1) {
+                border-color: #007bff;
+                color: #007bff;
+            }
+
+                .btn-custom:nth-child(1):hover {
+                    background-color: #007bff;
+                    color: #fff;
+                }
+
+            .btn-custom:nth-child(2) {
+                border-color: #6c757d;
+                color: #6c757d;
+            }
+
+                .btn-custom:nth-child(2):hover {
+                    background-color: #6c757d;
+                    color: #fff;
+                }
+
+            .btn-custom:nth-child(3) {
+                border-color: #0056b3;
+                color: #0056b3;
+            }
+
+                .btn-custom:nth-child(3):hover {
+                    background-color: #0056b3;
+                    color: #fff;
+                }
+
+            .btn-custom:nth-child(4) {
+                border-color: #28a745;
+                color: #28a745;
+            }
+
+                .btn-custom:nth-child(4):hover {
+                    background-color: #28a745;
+                    color: #fff;
+                }
+    </style>
+

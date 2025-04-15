@@ -1,0 +1,84 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Assign Wedding Planner";
+}
+<h2>Assign Wedding Planner</h2>
+<div id="plannerSection" class="mt-4"></div>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+
+        function loadPlannerSection() {
+            $.get(`/Planner/GetAvailablePlanners?coupleId=${coupleId}`, function (data) {
+                if (data.alreadyAssigned) {
+                    $("#plannerSection").html(`
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Assigned Planner</h5>
+                                    <p class="card-text"><strong>Name:</strong> ${data.assignedPlanner.name}</p>
+                                    <p class="card-text"><strong>Email:</strong> ${data.assignedPlanner.email}</p>
+                                    <button class="btn btn-danger" id="removePlannerBtn">Remove Planner</button>
+                                </div>
+                            </div>
+                        `);
+
+                    $("#removePlannerBtn").click(function () {
+                        $.ajax({
+                            url: `/Planner/RemovePlanner?coupleId=${coupleId}`,
+                            method: "DELETE",
+                            success: function (msg) {
+                                loadPlannerSection();
+                            },
+                            error: function (xhr) {
+                                alert(xhr.responseText);
+                            }
+                        });
+                    });
+
+                    return;
+                }
+
+                if (!data.planners || data.planners.length === 0) {
+                    $("#plannerSection").html(`<div class="alert alert-warning">No planners available.</div>`);
+                    return;
+                }
+
+                let options = data.planners.map(p => `<option value="${p.id}">${p.name} (${p.email})</option>`).join('');
+                $("#plannerSection").html(`
+                        <form id="assignPlannerForm">
+                            <div class="form-group">
+                                <label for="plannerSelect">Select Planner:</label>
+                                <select class="form-control" id="plannerSelect">${options}</select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-2">Assign Planner</button>
+                        </form>
+                        <div id="assignStatus" class="mt-3"></div>
+                    `);
+
+                $("#assignPlannerForm").on("submit", function (e) {
+                    e.preventDefault();
+                    const plannerId = $("#plannerSelect").val();
+
+                    $.ajax({
+                        url: "/Planner/AssignPlanner",
+                        method: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ coupleId: coupleId, plannerUserId: plannerId }),
+                        success: function (msg) {
+                            $("#assignStatus").html(`<div class="alert alert-success">${msg}</div>`);
+                            loadPlannerSection();
+                        },
+                        error: function (xhr) {
+                            $("#assignStatus").html(`<div class="alert alert-danger">${xhr.responseText}</div>`);
+                        }
+                    });
+                });
+            });
+        }
+
+        $(document).ready(function () {
+            loadPlannerSection();
+        });
+    </script>
+}

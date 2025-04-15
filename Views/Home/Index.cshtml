@@ -16,7 +16,7 @@
         }
         else if (await UserManager.IsInRoleAsync(user, "Planner"))
         {
-            dashboardUrl = "/Planner/Index";
+            dashboardUrl = "/WeddingPlanners/Index";
         }
         else if (await UserManager.IsInRoleAsync(user, "Couple"))
         {
@@ -34,7 +34,7 @@
     @if (!isLoggedIn)
     {
         <a href="/Auth/RegisterCouple" class="btn btn-primary btn-lg me-3">Register as Couple</a>
-        <a href="#" class="btn btn-secondary btn-lg">Register as Wedding Planner</a>
+        <a href="/Auth/RegisterPlanner" class="btn btn-secondary btn-lg">Register as Wedding Planner</a>
     }
     else
     {
