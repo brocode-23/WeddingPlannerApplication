@@ -105,6 +105,13 @@ namespace WeddingPlannerApplication.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid booking data.");
+            //if (!ModelState.IsValid)
+            //{
+            //    var errors = ModelState.Values.SelectMany(v => v.Errors)
+            //                    .Select(e => e.ErrorMessage + " " + e.Exception?.Message)
+            //                    .ToList();
+            //    return BadRequest("Invalid booking data. " + string.Join(" | ", errors));
+            //}
 
             try
             {

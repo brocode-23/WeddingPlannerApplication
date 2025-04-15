@@ -1,0 +1,305 @@
+﻿@{
+    Layout = "~/Views/Couple/_CoupleLayout.cshtml";
+    ViewData["Title"] = "Vendors";
+}
+
+<style>
+    .scrollable-content {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .vendor-img {
+        height: 200px;
+        object-fit: cover;
+        display: block;
+        width: 100%;
+        background-color: #f0f0f0;
+        position: relative;
+    }
+
+        .vendor-img[alt]:not([src])::before {
+            content: attr(alt);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #333;
+            background-color: #f0f0f0;
+        }
+
+    #vendorList {
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .modal-body {
+        min-height: 500px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Vendors</h2>
+    <div class="form-group">
+        <select class="form-control" id="categoryFilter" onchange="loadVendors()">
+            <option value="">All Categories</option>
+        </select>
+    </div>
+</div>
+
+<div id="vendorList" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"></div>
+
+<!-- Vendor Details Modal -->
+<div class="modal fade" id="vendorDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Vendor Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs mb-3" id="vendorTab" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#detailsTab">Details</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#servicesTab">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#availabilityTab">Availability</a></li>
+                    <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#reviewsTab">Reviews</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active scrollable-content" id="detailsTab"></div>
+                    <div class="tab-pane fade scrollable-content" id="servicesTab"></div>
+                    <div class="tab-pane fade scrollable-content" id="availabilityTab"></div>
+                    <div class="tab-pane fade scrollable-content" id="reviewsTab"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const coupleId = @ViewBag.CoupleId;
+        let currentVendorId = 0;
+        let bookingExists = false;
+        const currentUserId = '@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value';
+
+        function formatDateTime(dateStr, timeStr = null) {
+            const date = new Date(dateStr);
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+
+            if (timeStr) {
+                return `${y}-${m}-${d} ${timeStr}`;
+            }
+
+            const h = String(date.getHours()).padStart(2, '0');
+            const min = String(date.getMinutes()).padStart(2, '0');
+            return `${y}-${m}-${d} ${h}:${min}`;
+        }
+
+        function loadCategories() {
+            $.get('/Vendor/GetAllVendorCategories', res => {
+                res.categories.forEach(c => {
+                    $('#categoryFilter').append(`<option value="${c.id}">${c.name}</option>`);
+                });
+            });
+        }
+
+        function loadVendors() {
+            const categoryId = $('#categoryFilter').val();
+            $('#vendorList').empty();
+            $.get('/Vendor/GetAllVendors', res => {
+                res.vendors.filter(v => !categoryId || v.categoryId == categoryId)
+                    .forEach(v => {
+                        $.get(`/Vendor/GetVendorAverageRating?vendorId=${v.id}`, ratingRes => {
+                            $('#vendorList').append(`
+                                        <div class="col">
+                                            <div class="card h-100 shadow position-relative">
+                                                <img src="${v.profilePicture || ''}" alt="${v.name}" class="card-img-top vendor-img">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${v.name}</h5>
+                                                    <p class="card-text">${v.description}</p>
+                                                    <p><strong>Category:</strong> ${v.category?.name ?? 'N/A'}</p>
+                                                    <p><strong>Location:</strong> ${v.location}</p>
+                                                    <p><strong>Rating:</strong> ${ratingRes.averageRating.toFixed(1)}</p>
+                                                    <button class="btn btn-outline-primary" onclick="viewDetails(${v.id})">📄 View Details</button>
+                                                </div>
+                                            </div>
+                                        </div>`);
+                        });
+                    });
+            });
+        }
+
+        function viewDetails(vendorId) {
+            currentVendorId = vendorId;
+            $.get(`/Vendor/GetVendorById/${vendorId}`, vendor => {
+                $.get(`/Vendor/GetVendorAverageRating?vendorId=${vendorId}`, ratingRes => {
+                    $('#detailsTab').html(`
+                                <h5>${vendor.name}</h5>
+                                <p>${vendor.description}</p>
+                                <p><strong>Location:</strong> ${vendor.location}</p>
+                                <p><strong>Category:</strong> ${vendor.category?.name ?? 'N/A'}</p>
+                                <p><strong>Average Rating:</strong> ${ratingRes.averageRating.toFixed(1)}</p>`);
+
+                    $.get(`/Vendor/GetAllVendorServices?vendorId=${vendorId}`, res => {
+                        $.get(`/Booking/GetBookings?coupleId=${coupleId}`, res1 => {
+                            const activeBookings = res1.bookings.filter(b => b.vendorId === vendorId && b.status !== 'Cancelled');
+                            const activeServiceIds = activeBookings.map(b => b.serviceId);
+
+                            const tableRows = res.services.map(s => {
+                                const isBooked = activeServiceIds.includes(s.id);
+                                const button = isBooked
+                                    ? `<button class="btn btn-sm btn-danger" onclick="removeBooking(${s.id})">❌ Cancel</button>`
+                                    : `<button class="btn btn-sm btn-success" onclick="bookVendor(${s.id})">📝 Book</button>`;
+                                return `
+                                    <tr>
+                                        <td>${s.serviceName}</td>
+                                        <td>${s.description}</td>
+                                        <td>Rs. ${s.price}</td>
+                                        <td>${button}</td>
+                                    </tr>`;
+                                            }).join('');
+
+                                            $('#servicesTab').html(`
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Service</th>
+                                            <th>Description</th>
+                                            <th>Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${tableRows}</tbody>
+                                </table>`);
+                        });
+                    });
+
+                    $.get(`/Vendor/GetVendorAvailability?vendorId=${vendorId}`, res => {
+                        const avail = res.availability.map(a => {
+                            const date = formatDateTime(a.availableDate).split(' ')[0];
+                            return `<li>${date} From ${a.fromTime} to ${a.toTime}</li>`;
+                        });
+                        $('#availabilityTab').html(avail.join('') || 'No availability.');
+                    });
+
+                    $.get(`/Vendor/GetVendorReviews?vendorId=${vendorId}`, res => {
+                        const reviewHtml = res.reviews.map(r => {
+                            console.log(r.userId, currentUserId);
+                            const deleteBtn = r.userId === currentUserId
+                                ? `<button class="btn btn-sm btn-danger ms-2" onclick="deleteReview(${r.id})">🗑️ Delete</button>`
+                                : '';
+                            return `<li><strong>${r.userId}</strong>: ${r.rating}⭐ - ${r.comment} ${deleteBtn}</li>`;
+                        }).join('') || 'No reviews yet.';
+                        $('#reviewsTab').html(`
+                                    <ul>${reviewHtml}</ul>
+                                    <hr>
+                                    <div>
+                                        <label>Rating:</label>
+                                        <select class="form-control" id="newRating">
+                                            <option value="">Select Rating</option>
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                            <option value="4">4</option>
+                                            <option value="5">5</option>
+                                        </select>
+                                        <label class="mt-2">Comment:</label>
+                                        <textarea id="newComment" class="form-control" rows="3"></textarea>
+                                        <button class="btn btn-primary mt-2" onclick="submitReview()">Submit Review</button>
+                                    </div>`);
+                    });
+
+                    $('#vendorDetailsModal').modal('show');
+                });
+            });
+        }
+
+        function bookVendor(serviceId) {
+            const booking = {
+                coupleId: coupleId,
+                vendorId: currentVendorId,
+                serviceId: serviceId,
+                bookingDate: new Date().toISOString(),
+                serviceDetails: 'Vendor Service Booking',
+                totalAmount: 0,
+                status: 'Confirmed',
+                paymentStatus: 'Pending'
+            };
+            $.ajax({
+                url: '/Booking/CreateBooking',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(booking),
+                success: () => {
+                    alert('Service booked successfully.');
+                    viewDetails(currentVendorId);
+                },
+                error: err => alert('Booking failed: ' + err.responseText)
+            });
+        }
+
+        function removeBooking(serviceId) {
+            $.get(`/Booking/GetBookings?coupleId=${coupleId}`, res => {
+                const booking = res.bookings.find(b => b.vendorId === currentVendorId && b.serviceId === serviceId && b.status !== 'Cancelled');
+                if (!booking) return alert("No active booking found for this service.");
+
+                $.ajax({
+                    url: `/Booking/CancelBooking?id=${booking.id}`,
+                    method: 'DELETE',
+                    success: () => {
+                        alert("Booking cancelled.");
+                        viewDetails(currentVendorId);
+                    },
+                    error: err => alert("Cancel failed: " + err.responseText)
+                });
+            });
+        }
+
+        function submitReview() {
+            const rating = $('#newRating').val();
+            const comment = $('#newComment').val();
+            if (!rating || !comment) return alert('Fill all review fields.');
+
+            $.ajax({
+                url: '/Vendor/SubmitReview',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    vendorId: currentVendorId,
+                    userId: '', // server will infer from session
+                    rating: rating,
+                    comment: comment
+                }),
+                success: () => {
+                    alert('Review submitted.');
+                    viewDetails(currentVendorId);
+                },
+                error: err => alert("Review failed: " + err.responseText)
+            });
+        }
+
+        function deleteReview(reviewId) {
+            if (!confirm("Are you sure you want to delete this review?")) return;
+
+            $.ajax({
+                url: `/Vendor/DeleteReview?id=${reviewId}`,
+                method: 'DELETE',
+                success: () => {
+                    alert("Review deleted.");
+                    viewDetails(currentVendorId);
+                },
+                error: err => alert("Delete failed: " + err.responseText)
+            });
+        }
+
+        $(document).ready(() => {
+            loadCategories();
+            loadVendors();
+        });
+    </script>
+}

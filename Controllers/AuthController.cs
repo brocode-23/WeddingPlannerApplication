@@ -33,18 +33,18 @@ namespace WeddingPlannerApplication.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        //[HttpGet]
+        //public IActionResult Login()
+        //{
+        //    return View();
+        //}
 
         [HttpPost]
         public async Task<IActionResult> RegisterCouple(RegisterCoupleModel model)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid registration data.");
+                return View(model);
             }
 
             try
@@ -77,13 +77,21 @@ namespace WeddingPlannerApplication.Controllers
                 var groomResult = await _userManager.CreateAsync(groom, model.GroomPassword);
                 if (!groomResult.Succeeded)
                 {
-                    return BadRequest(groomResult.Errors);
+                    foreach (var error in groomResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
                 }
 
                 var brideResult = await _userManager.CreateAsync(bride, model.BridePassword);
                 if (!brideResult.Succeeded)
                 {
-                    return BadRequest(brideResult.Errors);
+                    foreach (var error in brideResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
                 }
 
                 await _userManager.AddToRoleAsync(groom, "Couple");
@@ -123,32 +131,49 @@ namespace WeddingPlannerApplication.Controllers
                 _context.CoupleMembers.Add(brideMember);
                 await _context.SaveChangesAsync();
 
-                return Ok("Couple registered successfully.");
+                TempData["SuccessMessage"] = "Couple registered successfully. You can now log in.";
+                return Redirect("~/Identity/Account/Login");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(model);
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Login(LoginModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid login details.");
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> Login(LoginModel model)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest("Invalid login details.");
+        //    }
 
+        //    try
+        //    {
+        //        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+
+        //        if (!result.Succeeded)
+        //        {
+        //            return Unauthorized("Invalid credentials.");
+        //        }
+
+        //        return Ok("Login successful.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, ex.Message);
+        //    }
+        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
             try
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-
-                if (!result.Succeeded)
-                {
-                    return Unauthorized("Invalid credentials.");
-                }
-
-                return Ok("Login successful.");
+                await _signInManager.SignOutAsync();
+                return Redirect("~/");
             }
             catch (Exception ex)
             {

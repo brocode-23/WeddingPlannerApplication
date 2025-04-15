@@ -3,16 +3,20 @@ using Microsoft.AspNetCore.Mvc;
 using WeddingPlannerApplication.Data;
 using WeddingPlannerApplication.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using WeddingPlannerApplication.ViewModels;
 
 namespace WeddingPlannerApplication.Controllers
 {
     public class VendorController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public VendorController(ApplicationDbContext context)
+        public VendorController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -421,19 +425,21 @@ namespace WeddingPlannerApplication.Controllers
         }
 
         [HttpPost]
-        public IActionResult SubmitReview([FromBody] Review review)
+        public async Task<IActionResult> SubmitReview([FromBody] Review review)
         {
             if (!ModelState.IsValid)
                 return BadRequest("Invalid review data.");
 
             try
             {
+                var user = await _userManager.GetUserAsync(User);
                 var exists = _context.Reviews
-                    .Any(r => r.VendorId == review.VendorId && r.UserId == review.UserId && !r.IsDeleted);
+                    .Any(r => r.VendorId == review.VendorId && r.UserId == user.Id && !r.IsDeleted);
 
                 if (exists)
                     return Conflict("You have already submitted a review for this vendor.");
 
+                review.UserId = user.Id;
                 review.CreatedAt = DateTime.UtcNow;
                 review.UpdatedAt = DateTime.UtcNow;
                 review.IsDeleted = false;
@@ -468,13 +474,15 @@ namespace WeddingPlannerApplication.Controllers
                     .Take(pageSize)
                     .ToList();
 
-                return Ok(new
+                var result = new VendorReviewResponseViewModel
                 {
                     TotalCount = totalCount,
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     Reviews = reviews
-                });
+                };
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -501,13 +509,20 @@ namespace WeddingPlannerApplication.Controllers
         }
 
         [HttpDelete]
-        public IActionResult DeleteReview(int id)
+        public async Task<IActionResult> DeleteReview(int id)
         {
             try
             {
+                var userId = _userManager.GetUserId(User);
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized("Not logged in.");
+
                 var review = _context.Reviews.FirstOrDefault(r => r.Id == id && !r.IsDeleted);
                 if (review == null)
                     return NotFound("Review not found.");
+
+                if (review.UserId != userId)
+                    return Forbid("You can only delete your own reviews.");
 
                 review.IsDeleted = true;
                 review.UpdatedAt = DateTime.UtcNow;
