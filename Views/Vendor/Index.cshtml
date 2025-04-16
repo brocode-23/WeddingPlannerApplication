@@ -1,0 +1,64 @@
+﻿@{
+    Layout = "~/Views/Vendor/_VendorLayout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-4">
+    <h2 class="mb-4">Vendor Dashboard</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-3 d-flex">
+            <div class="card text-white bg-primary w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Total Services</h5>
+                    <p class="card-text" id="totalServices">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex">
+            <div class="card text-white bg-success w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Total Availability</h5>
+                    <p class="card-text" id="totalAvailability">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex">
+            <div class="card text-white bg-info w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Total Reviews</h5>
+                    <p class="card-text" id="totalReviews">Loading...</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex">
+            <div class="card text-white bg-dark w-100 h-100">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <h5 class="card-title">Average Rating</h5>
+                    <p class="card-text" id="averageRating">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const vendorId = @ViewBag.VendorId;
+
+        $(document).ready(() => {
+            loadVendorDashboard();
+        });
+
+        function loadVendorDashboard() {
+            $.get(`/Vendor/GetDashboardData?vendorId=${vendorId}`, function (data) {
+                $("#totalServices").text(data.totalServices);
+                $("#totalAvailability").text(data.totalAvailability);
+                $("#totalReviews").text(data.totalReviews);
+                $("#averageRating").text(data.averageRating + " ★");
+            }).fail(err => {
+                alert("Failed to load dashboard: " + err.responseText);
+            });
+        }
+    </script>
+}

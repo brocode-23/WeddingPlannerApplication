@@ -1,0 +1,133 @@
+﻿@{
+    Layout = "~/Views/Vendor/_VendorLayout.cshtml";
+    ViewData["Title"] = "Vendor Services";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>My Services</h2>
+    <button class="btn btn-primary" onclick="openAddServiceModal()">
+        <i class="fas fa-plus"></i> Add Service
+    </button>
+</div>
+
+<table class="table table-bordered table-hover" id="serviceTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Service</th>
+            <th>Description</th>
+            <th>Price (Rs.)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="serviceBody"></tbody>
+</table>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="serviceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Service Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="serviceId" />
+                <div class="mb-3">
+                    <label class="form-label">Service Name</label>
+                    <input type="text" class="form-control" id="serviceName" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" id="serviceDescription"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Price (Rs.)</label>
+                    <input type="number" class="form-control" id="servicePrice" step="0.01" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveService()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const vendorId = @ViewBag.VendorId;
+
+        function loadServices() {
+            $.get(`/Vendor/GetAllVendorServices?vendorId=${vendorId}`, function (res) {
+                const tbody = $("#serviceBody").empty();
+                res.services.forEach(s => {
+                    const row = `<tr>
+                        <td>${s.serviceName}</td>
+                        <td>${s.description}</td>
+                        <td>${parseFloat(s.price).toLocaleString()}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick='editService(${JSON.stringify(s)})'>
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteService(${s.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+            });
+        }
+
+        function openAddServiceModal() {
+            $("#serviceId").val('');
+            $("#serviceName, #serviceDescription, #servicePrice").val('');
+            $("#serviceModal").modal('show');
+        }
+
+        function editService(s) {
+            $("#serviceId").val(s.id);
+            $("#serviceName").val(s.serviceName);
+            $("#serviceDescription").val(s.description);
+            $("#servicePrice").val(s.price);
+            $("#serviceModal").modal('show');
+        }
+
+        function saveService() {
+            const data = {
+                id: $("#serviceId").val() || 0,
+                vendorId: vendorId,
+                serviceName: $("#serviceName").val(),
+                description: $("#serviceDescription").val(),
+                price: parseFloat($("#servicePrice").val())
+            };
+
+            const isNew = data.id == 0;
+
+            $.ajax({
+                url: isNew ? '/Vendor/AddVendorService' : '/Vendor/UpdateVendorService',
+                method: isNew ? 'POST' : 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => {
+                    $("#serviceModal").modal('hide');
+                    loadServices();
+                },
+                error: err => alert("Error saving service: " + err.responseText)
+            });
+        }
+
+        function deleteService(id) {
+            if (!confirm("Are you sure you want to remove this service?")) return;
+
+            $.ajax({
+                url: `/Vendor/DeleteVendorService?id=${id}`,
+                method: 'DELETE',
+                success: loadServices,
+                error: err => alert("Error deleting service: " + err.responseText)
+            });
+        }
+
+        $(document).ready(loadServices);
+    </script>
+}
