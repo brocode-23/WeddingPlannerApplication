@@ -1,0 +1,146 @@
+﻿@{
+    Layout = "~/Views/Vendor/_VendorLayout.cshtml";
+    ViewData["Title"] = "Availability";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Vendor Availability</h2>
+    <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="fas fa-plus"></i> Add Availability
+    </button>
+</div>
+
+<table class="table table-bordered table-hover" id="availabilityTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Date</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="availabilityBody"></tbody>
+</table>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="availabilityModal" tabindex="-1">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Availability Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="availabilityId" />
+                <div class="mb-2">
+                    <label class="form-label">Available Date</label>
+                    <input type="date" class="form-control" id="availableDate" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">From Time</label>
+                    <input type="time" class="form-control" id="fromTime" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">To Time</label>
+                    <input type="time" class="form-control" id="toTime" />
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" id="status">
+                        <option value="">-- Select Status --</option>
+                        <option>Available</option>
+                        <option>Booked</option>
+                        <option>Not Available</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-success" onclick="saveAvailability()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const vendorId = @ViewBag.VendorId;
+
+        function loadAvailability() {
+            $.get(`/Vendor/GetVendorAvailability?vendorId=${vendorId}`, function (res) {
+                const tbody = $("#availabilityBody").empty();
+                res.availability.forEach(a => {
+                    const row = `<tr>
+                        <td>${a.availableDate.split('T')[0]}</td>
+                        <td>${a.fromTime}</td>
+                        <td>${a.toTime}</td>
+                        <td>${a.status}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning me-1" onclick='editAvailability(${JSON.stringify(a)})'><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteAvailability(${a.id})"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+            });
+        }
+
+        function openAddModal() {
+            $("#availabilityId").val('');
+            $("#availableDate, #fromTime, #toTime, #status").val('');
+            $("#availabilityModal").modal('show');
+        }
+
+        function editAvailability(a) {
+            $("#availabilityId").val(a.id);
+            $("#availableDate").val(a.availableDate.split('T')[0]);
+
+            const from = a.fromTime.split(':').slice(0, 2).join(':');
+            const to = a.toTime.split(':').slice(0, 2).join(':');
+
+            $("#fromTime").val(from);
+            $("#toTime").val(to);
+            $("#status").val(a.status);
+            $("#availabilityModal").modal('show');
+        }
+
+        function saveAvailability() {
+            const data = {
+                id: $("#availabilityId").val() || 0,
+                vendorId: vendorId,
+                availableDate: $("#availableDate").val(),
+                fromTime: $("#fromTime").val() + ":00",
+                toTime: $("#toTime").val() + ":00",
+                status: $("#status").val()
+            };
+
+            const isNew = data.id == 0;
+
+            $.ajax({
+                url: isNew ? '/Vendor/AddVendorAvailability' : '/Vendor/UpdateVendorAvailability',
+                method: isNew ? 'POST' : 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: () => {
+                    $("#availabilityModal").modal('hide');
+                    loadAvailability();
+                },
+                error: err => alert("Error saving availability: " + err.responseText)
+            });
+        }
+
+        function deleteAvailability(id) {
+            if (!confirm("Are you sure you want to delete this entry?")) return;
+
+            $.ajax({
+                url: `/Vendor/DeleteVendorAvailability?id=${id}`,
+                method: 'DELETE',
+                success: loadAvailability,
+                error: err => alert("Error deleting: " + err.responseText)
+            });
+        }
+
+        $(document).ready(loadAvailability);
+    </script>
+}
