@@ -1,0 +1,19 @@
+﻿@model WeddingPlannerApplication.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Delete User";
+    Layout = "~/Views/Admin/_AdminLayout.cshtml";
+
+}
+
+<h2>Are you sure you want to delete this user?</h2>
+
+<div class="mb-3">
+    <strong>Email:</strong> @Model.Email <br />
+    <strong>Name:</strong> @Model.FirstName @Model.LastName
+</div>
+
+<form asp-action="DeleteConfirmed" method="post">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Yes, Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">No, Cancel</a>
+</form>
