@@ -1,0 +1,43 @@
+﻿@{
+    Layout = "~/Views/Vendor/_VendorLayout.cshtml";
+    ViewData["Title"] = "Reviews";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Customer Reviews</h2>
+</div>
+
+<table class="table table-bordered table-hover" id="reviewTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Reviewer</th>
+            <th>Rating</th>
+            <th>Comment</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody id="reviewBody"></tbody>
+</table>
+
+@section Scripts {
+    <script>
+        const vendorId = @ViewBag.VendorId;
+
+        function loadReviews() {
+            $.get(`/Vendor/GetVendorReviewsList?vendorId=${vendorId}`, function (res) {
+                const tbody = $("#reviewBody").empty();
+                res.reviews.forEach(r => {
+                    const row = `<tr>
+                        <td>${r.fullName}</td>
+                        <td>${r.rating} ★</td>
+                        <td>${r.comment}</td>
+                        <td>${new Date(r.createdAt).toLocaleDateString()}</td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+            });
+        }
+
+        $(document).ready(loadReviews);
+    </script>
+}

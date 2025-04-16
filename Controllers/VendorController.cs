@@ -5,6 +5,7 @@ using WeddingPlannerApplication.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using WeddingPlannerApplication.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WeddingPlannerApplication.Controllers
 {
@@ -17,6 +18,92 @@ namespace WeddingPlannerApplication.Controllers
         {
             _context = context;
             _userManager = userManager;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var vendor = _context.Vendors.FirstOrDefault(v => v.UserId == user.Id && !v.IsDeleted);
+            if (vendor == null)
+                return RedirectToAction("Index", "Home");
+
+            ViewBag.VendorId = vendor.Id;
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult GetDashboardData(int vendorId)
+        {
+            try
+            {
+                var vendor = _context.Vendors.FirstOrDefault(v => v.Id == vendorId && !v.IsDeleted);
+                if (vendor == null)
+                    return NotFound("Vendor not found.");
+
+                var serviceCount = _context.VendorServices.Count(s => s.VendorId == vendorId && !s.IsDeleted);
+                var availabilityCount = _context.VendorAvailabilities.Count(a => a.VendorId == vendorId && !a.IsDeleted);
+                var reviewCount = _context.Reviews.Count(r => r.VendorId == vendorId && !r.IsDeleted);
+
+                var avgRating = _context.Reviews
+                    .Where(r => r.VendorId == vendorId && !r.IsDeleted)
+                    .Select(r => (double?)r.Rating)
+                    .Average() ?? 0.0;
+
+                return Ok(new
+                {
+                    totalServices = serviceCount,
+                    totalAvailability = availabilityCount,
+                    totalReviews = reviewCount,
+                    averageRating = Math.Round(avgRating, 1)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Services()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var vendor = _context.Vendors.FirstOrDefault(v => v.UserId == user.Id && !v.IsDeleted);
+            if (vendor == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.VendorId = vendor.Id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Availability()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var vendor = _context.Vendors.FirstOrDefault(v => v.UserId == user.Id && !v.IsDeleted);
+            if (vendor == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.VendorId = vendor.Id;
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Reviews()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var vendor = _context.Vendors.FirstOrDefault(v => v.UserId == user.Id && !v.IsDeleted);
+            if (vendor == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            ViewBag.VendorId = vendor.Id;
+            return View();
         }
 
         [HttpGet]
@@ -177,6 +264,14 @@ namespace WeddingPlannerApplication.Controllers
         [HttpPost]
         public IActionResult AddVendorService([FromBody] VendorService service)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    var errors = ModelState.Values.SelectMany(v => v.Errors)
+            //            .Select(e => e.ErrorMessage + " " + e.Exception?.Message)
+            //            .ToList();
+            //    return BadRequest("Invalid booking data. " + string.Join(" | ", errors));
+            //}
+
             if (!ModelState.IsValid)
                 return BadRequest("Invalid service data.");
 
@@ -271,6 +366,14 @@ namespace WeddingPlannerApplication.Controllers
         [HttpPost]
         public IActionResult AddVendorAvailability([FromBody] VendorAvailability availability)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    var errors = ModelState.Values.SelectMany(v => v.Errors)
+            //            .Select(e => e.ErrorMessage + " " + e.Exception?.Message)
+            //            .ToList();
+            //    return BadRequest("Invalid booking data. " + string.Join(" | ", errors));
+            //}
+
             if (!ModelState.IsValid)
                 return BadRequest("Invalid availability data.");
 
@@ -294,6 +397,14 @@ namespace WeddingPlannerApplication.Controllers
         [HttpPut]
         public IActionResult UpdateVendorAvailability([FromBody] VendorAvailability availability)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    var errors = ModelState.Values.SelectMany(v => v.Errors)
+            //            .Select(e => e.ErrorMessage + " " + e.Exception?.Message)
+            //            .ToList();
+            //    return BadRequest("Invalid booking data. " + string.Join(" | ", errors));
+            //}
+
             if (!ModelState.IsValid)
                 return BadRequest("Invalid availability data.");
 
@@ -483,6 +594,51 @@ namespace WeddingPlannerApplication.Controllers
                 };
 
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetVendorReviewsList(int vendorId, int pageNumber = 1, int pageSize = 10, int? minRating = null)
+        {
+            try
+            {
+                var query = _context.Reviews
+                    .Where(r => r.VendorId == vendorId && !r.IsDeleted);
+
+                if (minRating.HasValue)
+                    query = query.Where(r => r.Rating >= minRating.Value);
+
+                var totalCount = query.Count();
+
+                var reviews = query
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .Join(
+                        _context.Users.OfType<ApplicationUser>(),
+                        review => review.UserId,
+                        user => user.Id,
+                        (review, user) => new
+                        {
+                            review.Id,
+                            review.Comment,
+                            review.Rating,
+                            review.CreatedAt,
+                            FullName = user.FirstName + " " + user.LastName
+                        })
+                    .ToList();
+
+                return Ok(new
+                {
+                    TotalCount = totalCount,
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    Reviews = reviews
+                });
             }
             catch (Exception ex)
             {
