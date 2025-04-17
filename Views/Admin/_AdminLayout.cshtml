@@ -1,4 +1,4 @@
-﻿@using DreamDayWeddingPlanner.Models
+﻿@using WeddingPlannerApplication.Models
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -81,6 +81,7 @@
             <a class="navbar-brand" href="#">DreamDay Admin</a>
             <div>
                 <span class="text-white me-3">@User.Identity?.Name</span>
+                <a class="nav-link d-inline text-white me-3" href="/">Home</a>
                 @if (SignInManager.IsSignedIn(User))
                 {
                     <form class="d-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
@@ -97,16 +98,15 @@
             <nav class="col-md-2 d-md-block sidebar">
                 <ul class="nav flex-column">
                     <li class="nav-item"><a class="nav-link active" href="/Admin/index"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/CouplesManage/Index"><i class="fas fa-users"></i> Users</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/PlannersManage"><i class="fas fa-user-tie"></i> Manage Planners</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/User/Index"><i class="fas fa-users"></i> Users</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/PlannerUser/Index"><i class="fas fa-user-tie"></i> Manage Planners</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Vendors/Index"><i class="fas fa-briefcase"></i> Manage Vendors</a></li>
                     <li class="nav-item"><a class="nav-link" href="/VendorCats/Index"><i class="fas fa-folder"></i> Vendor Categories</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/AddAdmin/Index"><i class="fas fa-cog"></i> Settings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Report/Index"><i class="fas fa-chart-bar"></i> Reports</a></li>
                 </ul>
             </nav>
 
-            <!-- Main Content -->
+            <!-- Main Content dfdsfsdfdsfdsfd -->
             <main class="col-md-10 ms-sm-auto px-4 pt-4">
                 @RenderBody()
             </main>
@@ -116,7 +116,6 @@
     <footer class="text-center py-3">
         <small>© @DateTime.Now.Year DreamDay Admin Panel</small>
     </footer>
-
     @RenderSection("Scripts", required: false)
 </body>
 </html>

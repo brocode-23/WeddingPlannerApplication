@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DreamDayWeddingPlanner.Models;
+using WeddingPlannerApplication.Models;
 using WeddingPlannerApplication.Data;
 
 namespace WeddingPlannerApplication.Controllers

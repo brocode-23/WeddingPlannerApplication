@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using WeddingPlannerApplication.Models;
 
-namespace DreamDayWeddingPlanner.Models
+namespace WeddingPlannerApplication.Models
 {
     public class Vendor
     {
