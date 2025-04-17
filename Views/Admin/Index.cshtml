@@ -1,10 +1,41 @@
 ﻿@{
+    ViewData["Title"] = "Booking Report";
     Layout = "~/Views/Admin/_AdminLayout.cshtml";
-    ViewData["Title"] = "Admin Dashboard";
 }
 
-<h2 class="mb-4">Admin Dashboard</h2>
+<h2 class="mb-4">Booking Report Dashboard</h2>
 
-<div class="row g-4">
-   
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Total Bookings</h5>
+                <h3>@ViewBag.TotalBookings</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <h3>@ViewBag.TotalRevenue.ToString("C")</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Pending Payments</h5>
+                <h3>@ViewBag.PendingPayments</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">Cancelled Bookings</h5>
+                <h3>@ViewBag.CancelledBookings</h3>
+            </div>
+        </div>
+    </div>
 </div>
