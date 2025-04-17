@@ -1,5 +1,4 @@
-﻿using DreamDayWeddingPlanner.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace WeddingPlannerApplication.Models
 {
