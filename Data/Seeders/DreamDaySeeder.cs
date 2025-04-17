@@ -1,5 +1,4 @@
-﻿using DreamDayWeddingPlanner.Models;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WeddingPlannerApplication.Models;

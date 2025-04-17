@@ -1,5 +1,4 @@
-﻿using DreamDayWeddingPlanner.Models;
-using WeddingPlannerApplication.Models;
+﻿using WeddingPlannerApplication.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,6 +10,8 @@ namespace WeddingPlannerApplication.Data
             : base(options)
         {
         }
+
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }  // <-- Add this
 
         // Vendor Management
         public DbSet<Vendor> Vendors { get; set; }
