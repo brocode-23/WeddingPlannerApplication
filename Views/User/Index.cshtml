@@ -4,8 +4,8 @@
     Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-semibold text-primary">👥 User Management</h2>
+<div class="d-flex justify-content-between gap-3 align-items-center mb-4">
+    <h2 class="fw-semibold text-primary">User Management</h2>
     <a class="btn btn-primary" asp-action="Create">
         <i class="fas fa-user-plus me-2"></i> Add New User
     </a>
@@ -13,12 +13,12 @@
 
 <div class="table-responsive shadow-sm rounded bg-white p-3">
     <table class="table table-hover align-middle">
-        <thead class="table-light border-bottom">
+        <thead class="">
             <tr class="text-secondary">
-                <th scope="col">📧 Email</th>
-                <th scope="col">👤 First Name</th>
-                <th scope="col">🧍 Last Name</th>
-                <th scope="col" class="text-center">⚙️ Actions</th>
+                <th scope="col">Email</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col" class="text-center"></th>
             </tr>
         </thead>
         <tbody>
@@ -29,10 +29,10 @@
                     <td>@user.FirstName</td>
                     <td>@user.LastName</td>
                     <td class="text-center">
-                        <a class="btn btn-sm btn-outline-primary me-2" asp-action="Edit" asp-route-id="@user.Id">
+                        <a class="btn btn-sm btn-primary me-2" asp-action="Edit" asp-route-id="@user.Id">
                             <i class="fas fa-edit"></i> Edit
                         </a>
-                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@user.Id">
+                        <a class="btn btn-sm btn-danger" asp-action="Delete" asp-route-id="@user.Id">
                             <i class="fas fa-trash-alt"></i> Delete
                         </a>
                     </td>

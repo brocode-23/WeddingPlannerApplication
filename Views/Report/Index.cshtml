@@ -37,43 +37,45 @@
     </div>
 </form>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>Booking ID</th>
-            <th>Couple ID</th>
-            <th>Vendor</th>
-            <th>Service</th>
-            <th>Booking Date</th>
-            <th>Total Amount</th>
-            <th>Status</th>
-            <th>Payment</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.Any())
-        {
-            foreach (var booking in Model)
+<div class="table-responsive shadow-sm rounded bg-white p-3">
+    <table class="table table-hover align-middle table-bordered table-striped">
+        <thead class="">
+            <tr>
+                <th>Booking ID</th>
+                <th>Couple ID</th>
+                <th>Vendor</th>
+                <th>Service</th>
+                <th>Booking Date</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th>Payment</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Any())
+            {
+                foreach (var booking in Model)
+                {
+                    <tr>
+                        <td>@booking.Id</td>
+                        <td>@booking.CoupleId</td>
+                        <td>@booking.Vendor?.Name</td>
+                        <td>@booking.ServiceDetails</td>
+                        <td>@booking.BookingDate.ToShortDateString()</td>
+                        <td>@booking.TotalAmount.ToString("C")</td>
+                        <td>@booking.Status</td>
+                        <td>@booking.PaymentStatus</td>
+                    </tr>
+                }
+            }
+            else
             {
                 <tr>
-                    <td>@booking.Id</td>
-                    <td>@booking.CoupleId</td>
-                    <td>@booking.Vendor?.Name</td>
-                    <td>@booking.ServiceDetails</td>
-                    <td>@booking.BookingDate.ToShortDateString()</td>
-                    <td>@booking.TotalAmount.ToString("C")</td>
-                    <td>@booking.Status</td>
-                    <td>@booking.PaymentStatus</td>
+                    <td colspan="9" class="text-center">No data available for the selected filters.</td>
                 </tr>
             }
-        }
-        else
-        {
-            <tr>
-                <td colspan="9" class="text-center">No data available for the selected filters.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 
 
