@@ -3,30 +3,38 @@
     Layout = "~/Views/Admin/_AdminLayout.cshtml";
 }
 
-<h2 class="mb-4">Booking Report Dashboard</h2>
+<h2 class="mb-4">Admin Dashboard</h2>
 
 <div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-primary shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Total Users</h5>
-                <h3>5</h3>
+    <div class="col-md-3">
+        <div class="card text-white bg-info shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <h5 class="card-title text-center">Total Booking</h5>
+                <h3 class="text-center">@ViewBag.TotalBookings</h3>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-success shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Registered Planners</h5>
-                <h3>4</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="card text-white bg-warning shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">Registered Vendors</h5>
-                <h3>5</h3>
+            <div class="card-body d-flex flex-column justify-content-center">
+                <h5 class="card-title text-center">Total Revenue</h5>
+                <h3 class="text-center">@ViewBag.TotalRevenue</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <h5 class="card-title text-center">Pending Payments</h5>
+                <h3 class="text-center">@ViewBag.PendingPayments</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body d-flex flex-column justify-content-center">
+                <h5 class="card-title text-center">Canceled Bookings</h5>
+                <h3 class="text-center">@ViewBag.CancelledBookings</h3>
             </div>
         </div>
     </div>
